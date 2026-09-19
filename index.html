@@ -82,7 +82,7 @@ const defaults={
 let editState={box:null,index:null};
 const $=id=>document.getElementById(id);
 
-function setAdminMode(on){document.querySelectorAll(".admin-only").forEach(el=>el.style.display=on?"":"none");$("admin-login-btn").style.display=on?"none":""}
+function setAdminMode(on){document.querySelectorAll(".admin-only").forEach(el=>el.style.display=on?(el.classList.contains("tools")?"block":"inline-flex"):"none");$("admin-login-btn").style.display=on?"none":"inline-flex"}
 function showDashboard(){ $("login-page").classList.remove("active-page");$("dashboard-page").classList.add("active-page");setAdminMode(sessionStorage.getItem("logged")==="1"); }
 function showLogin(){ $("dashboard-page").classList.remove("active-page");$("login-page").classList.add("active-page"); }
 $("login-form").addEventListener("submit",async e=>{e.preventDefault();const email=$("username").value.trim(),password=$("password").value,err=$("login-error"),btn=e.target.querySelector("button");err.style.display="none";btn.disabled=true;btn.textContent="লগইন হচ্ছে...";try{const {error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;const {data:admin,error:ae}=await supabaseClient.from("admin_users").select("email").eq("email",email).maybeSingle();if(ae)throw ae;if(!admin){await supabaseClient.auth.signOut();throw new Error("এই email Admin তালিকায় নেই।")}sessionStorage.setItem("logged","1");showDashboard()}catch(x){err.textContent="লগইন ব্যর্থ: "+(x.message||"Email/Password সঠিক নয়।");err.style.display="block"}finally{btn.disabled=false;btn.textContent="লগ ইন করুন"}});
