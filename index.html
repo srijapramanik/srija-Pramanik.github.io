@@ -61,6 +61,9 @@ function pageKey(){const p=document.querySelector(".page.active-page");return p?
 function makeEditKey(el){if(!el.dataset.editKey){const page=pageKey();const all=[...document.querySelectorAll("#"+page+" *")];const idx=all.indexOf(el);el.dataset.editKey=page+"|"+el.tagName.toLowerCase()+"|"+idx}return el.dataset.editKey}
 function applyElementDesigns(){
  const d=getElementDesigns();
+ document.querySelectorAll(".page").forEach(page=>{
+   [...page.querySelectorAll("*")].forEach((el,i)=>{el.dataset.editKey=page.id+"|"+el.tagName.toLowerCase()+"|"+i});
+ });
  document.querySelectorAll(".page *").forEach(el=>{
    const k=el.dataset.editKey;
    if(!k||!d[k])return;
