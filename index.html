@@ -144,13 +144,11 @@ function initElementSelection(){
  const select=el=>{clear();if(el)el.classList.add("admin-element-selected")};
  const boxSelector=".glass:not(.modalbox),.box,.tools,.ticker,.site-card";
  document.querySelectorAll(boxSelector).forEach(el=>el.classList.add("admin-selectable"));
+ if(document.body.dataset.bigBoxSelectionInit==="1")return;
+ document.body.dataset.bigBoxSelectionInit="1";
  document.addEventListener("pointerdown",e=>{
   if(sessionStorage.getItem("logged")!=="1")return;
-  const t=e.target;
-  const text=t.closest(".text-editable");
-  const button=t.closest(".btn");
-  if(text||button)return;
-  const box=t.closest(boxSelector);
+  const box=e.target.closest(boxSelector);
   if(box){select(box);e.preventDefault();e.stopPropagation();return}
   clear();
  },true);
