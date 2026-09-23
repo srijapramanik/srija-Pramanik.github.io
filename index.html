@@ -159,7 +159,7 @@ function initElementSelection(){
 function initLogoDrag(){
  const el=document.getElementById("brand-drag"),area=document.querySelector(".dash");if(!el||!area)return;
  const saved=JSON.parse(localStorage.getItem("brand_position")||"null");
- if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){el.style.position="absolute";el.style.left=saved.x+"px";el.style.top=saved.y+"px";el.style.zIndex="5"}
+ if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){const safeY=Math.max(8,saved.y);el.style.position="absolute";el.style.left=Math.max(0,saved.x)+"px";el.style.top=safeY+"px";el.style.zIndex="5"}
  let dragging=false,sx=0,sy=0,ox=0,oy=0;
  const start=e=>{dragging=true;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect(),ar=area.getBoundingClientRect();ox=r.left-ar.left;oy=r.top-ar.top;el.style.position="absolute";el.style.zIndex="5";if(e.pointerId!=null)el.setPointerCapture(e.pointerId);e.preventDefault();};
  const move=e=>{if(!dragging)return;const ar=area.getBoundingClientRect(),maxX=Math.max(0,area.clientWidth-el.offsetWidth),maxY=Math.max(0,area.scrollHeight-el.offsetHeight);let x=ox+e.clientX-sx,y=oy+e.clientY-sy;x=Math.max(0,Math.min(maxX,x));y=Math.max(0,Math.min(maxY,y));el.style.left=x+"px";el.style.top=y+"px";};
