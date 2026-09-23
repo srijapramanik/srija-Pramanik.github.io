@@ -140,7 +140,7 @@ function initTextEditing(){
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
  document.querySelectorAll(".admin-selectable").forEach(el=>el.classList.remove("admin-selectable"));
- document.querySelectorAll(".glass:not(.modalbox),.btn").forEach(el=>el.classList.add("admin-selectable"));
+ document.querySelectorAll(".glass:not(.modalbox),.box,.tools,.ticker,.site-card,.site-card img,.btn").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.selectionInit==="1")return;
  document.body.dataset.selectionInit="1";
  document.addEventListener("click",e=>{
