@@ -97,44 +97,101 @@ function closeSettings(){$("settings-modal").classList.remove("show")}async func
 function initTextEditing(){
  if(sessionStorage.getItem("logged")!=="1")return;
  document.body.classList.add("admin-text-editing");
- const skip=new Set(["SCRIPT","STYLE","INPUT","TEXTAREA","SELECT","OPTION","IMG"]);
+
+ // Only elements that directly contain the visible text are selectable.
+ // Parent containers are deliberately excluded so one text never selects another.
+ const skip=new Set(["SCRIPT","STYLE","INPUT","TEXTAREA","SELECT","OPTION","IMG","BUTTON"]);
  const els=[...document.body.querySelectorAll("*")].filter(el=>{
   if(skip.has(el.tagName)||el.closest("[data-no-text-edit]"))return false;
   if(el.dataset.textEditInit)return false;
-  return [...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
+  const textNodes=[...el.childNodes].filter(n=>n.nodeType===3&&n.textContent.trim());
+  if(!textNodes.length)return false;
+  // If a child element also contains direct visible text, use the child instead.
+  const childText=[...el.children].some(ch=>[...ch.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));
+  return !childText;
  });
+
  const keyFor=el=>{
   if(el.id)return el.id;
   if(!el.dataset.textMoveKey){
    const parts=[];let n=el;
-   while(n&&n!==document.body){const p=n.parentElement;parts.unshift(n.tagName+":"+[...p.children].indexOf(n));n=p}
+   while(n&&n!==document.body){
+    const p=n.parentElement;
+    parts.unshift(n.tagName+":"+(p?[...p.children].indexOf(n):0));
+    n=p;
+   }
    el.dataset.textMoveKey=parts.join("/");
   }
   return el.dataset.textMoveKey;
  };
+
+ const clearSelection=()=>{
+  document.querySelectorAll(".text-editing-active").forEach(x=>x.classList.remove("text-editing-active"));
+ };
+
  els.forEach(el=>{
-  el.dataset.textEditInit="1";el.classList.add("text-editable");el.contentEditable="true";el.spellcheck=false;
+  el.dataset.textEditInit="1";
+  el.classList.add("text-editable");
+  el.contentEditable="true";
+  el.spellcheck=false;
+
   const key=keyFor(el);
-  try{const saved=JSON.parse(localStorage.getItem("text_pos_"+key)||"null");if(saved){el.style.position="relative";el.style.left=saved.x+"px";el.style.top=saved.y+"px"}}catch(e){}
+  try{
+   const saved=JSON.parse(localStorage.getItem("text_pos_"+key)||"null");
+   if(saved){
+    el.style.position="relative";
+    el.style.left=saved.x+"px";
+    el.style.top=saved.y+"px";
+   }
+  }catch(e){}
+
   let timer=null,dragging=false,sx=0,sy=0;
   el.addEventListener("pointerdown",e=>{
    if(e.button!==0)return;
-   sx=e.clientX;sy=e.clientY;timer=setTimeout(()=>{dragging=true;el.classList.add("text-editing-active");el.style.position="relative";if(e.pointerId!=null)el.setPointerCapture(e.pointerId)},500);
+   clearSelection();
+   el.classList.add("text-editing-active");
+   sx=e.clientX;sy=e.clientY;
+   timer=setTimeout(()=>{
+    dragging=true;
+    el.style.position="relative";
+    if(e.pointerId!=null)el.setPointerCapture(e.pointerId);
+   },500);
   });
   el.addEventListener("pointermove",e=>{
    if(Math.abs(e.clientX-sx)>6||Math.abs(e.clientY-sy)>6)clearTimeout(timer);
    if(!dragging)return;
    el.style.left=(parseFloat(el.style.left)||0)+(e.clientX-sx)+"px";
-   el.style.top=(parseFloat(el.style.top)||0)+(e.clientY-sy)+"px";sx=e.clientX;sy=e.clientY;
+   el.style.top=(parseFloat(el.style.top)||0)+(e.clientY-sy)+"px";
+   sx=e.clientX;sy=e.clientY;
   });
-  el.addEventListener("pointerup",()=>{
+  const finish=()=>{
    clearTimeout(timer);
-   if(dragging){dragging=false;el.classList.remove("text-editing-active");localStorage.setItem("text_pos_"+key,JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}))}
-  });
-  el.addEventListener("pointercancel",()=>{clearTimeout(timer);dragging=false;el.classList.remove("text-editing-active")});
+   if(dragging){
+    dragging=false;
+    localStorage.setItem("text_pos_"+key,JSON.stringify({
+     x:parseFloat(el.style.left)||0,
+     y:parseFloat(el.style.top)||0
+    }));
+   }
+  };
+  el.addEventListener("pointerup",finish);
+  el.addEventListener("pointercancel",finish);
+
   el.addEventListener("input",()=>{
-   const map={"site-title":"siteTitle","site-subtitle":"siteSubtitle","marquee-text":"marquee","public-links-title":"publicLinksTitle","public-box1-btn":"box1Button","public-box2-btn":"box2Button","settings-title":"settingsTitle","links-title":"box1Title","link-page-subtitle":"linkPageSubtitle"};
-   if(el.id&&map[el.id]){const s=getSettings();s[map[el.id]]=el.innerText;localStorage.setItem("site_settings",JSON.stringify(s))}
+   const map={
+    "site-title":"siteTitle",
+    "site-subtitle":"siteSubtitle",
+    "marquee-text":"marquee",
+    "public-links-title":"publicLinksTitle",
+    "settings-title":"settingsTitle",
+    "links-title":"box1Title",
+    "link-page-subtitle":"linkPageSubtitle"
+   };
+   if(el.id&&map[el.id]){
+    const s=getSettings();
+    s[map[el.id]]=el.innerText;
+    localStorage.setItem("site_settings",JSON.stringify(s));
+   }
   });
  });
 }
