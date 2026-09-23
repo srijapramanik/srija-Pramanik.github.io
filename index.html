@@ -82,7 +82,32 @@
 @media(max-width:600px){
   .top{padding:12px}
 }
-#website-page{padding:0!important;min-height:100vh;width:100vw;overflow:auto}#website-page>.dash{width:100%;max-width:none;min-height:100vh;margin:0;padding:18px 24px}.website-view-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.website-view-frame{width:100%;height:calc(100vh - 130px);min-height:520px;border:1px solid var(--border);border-radius:16px;background:#fff}.website-view-note{margin:0 0 12px;color:var(--sub-color);font-size:13px}@media(max-width:600px){#website-page>.dash{padding:12px}}</style></head>
+#website-page{padding:0!important;min-height:100vh;width:100vw;overflow:auto}#website-page>.dash{width:100%;max-width:none;min-height:100vh;margin:0;padding:18px 24px}.website-view-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.website-view-frame{width:100%;height:calc(100vh - 130px);min-height:520px;border:1px solid var(--border);border-radius:16px;background:#fff}.website-view-note{margin:0 0 12px;color:var(--sub-color);font-size:13px}@media(max-width:600px){#website-page>.dash{padding:12px}}<style>
+/* Keep secondary pages completely separate from the home page */
+#links-page.active-page,
+#website-page.active-page{
+  display:block!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:auto!important;
+  z-index:100!important;
+  background:var(--bg)!important;
+}
+#dashboard-page:not(.active-page),
+#links-page:not(.active-page),
+#website-page:not(.active-page){
+  display:none!important;
+}
+#links-page.active-page>.dash,
+#website-page.active-page>.dash{
+  min-height:100vh!important;
+}
+</style></head>
 <body>
 <div id="links-page" class="page">
 </div>
