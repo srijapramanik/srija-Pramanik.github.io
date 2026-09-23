@@ -145,7 +145,7 @@ function initTextEditing(){
    }
   }catch(e){}
 
-  let dragging=false,sx=0,sy=0,ox=0,oy=0,timer=null,moved=false;
+  let dragging=false,sx=0,sy=0,ox=0,oy=0,moved=false;
 
   el.addEventListener("click",e=>{
    if(moved){moved=false;return;}
@@ -168,17 +168,14 @@ function initTextEditing(){
    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
    clear();
    el.classList.add("admin-element-selected");
-   timer=setTimeout(()=>{
-    dragging=true;
-    el.style.position="relative";
-    if(e.pointerId!=null)el.setPointerCapture(e.pointerId);
-   },500);
+   el.style.position="relative";
+   if(e.pointerId!=null)el.setPointerCapture(e.pointerId);
   },true);
 
   el.addEventListener("pointermove",e=>{
-   if(Math.abs(e.clientX-sx)>6||Math.abs(e.clientY-sy)>6){
+   if(Math.abs(e.clientX-sx)>4||Math.abs(e.clientY-sy)>4){
     moved=true;
-    clearTimeout(timer);
+    dragging=true;
    }
    if(!dragging)return;
    el.style.left=(ox+e.clientX-sx)+"px";
@@ -187,7 +184,6 @@ function initTextEditing(){
   },true);
 
   const end=e=>{
-   clearTimeout(timer);
    if(dragging){
     dragging=false;
     localStorage.setItem("text_pos_"+key,JSON.stringify({
