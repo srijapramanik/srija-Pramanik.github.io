@@ -47,7 +47,7 @@
 .text-editable{outline:1px dashed transparent;cursor:text;position:relative;touch-action:none}
 .admin-text-editing .text-editable:hover{outline-color:#38bdf8}
 .admin-text-editing .text-editing-active{outline:2px dashed #38bdf8;background:#ffffff08}
-.admin-element-selected{outline:3px solid #38bdf8!important;outline-offset:4px!important;box-shadow:0 0 0 4px #38bdf833!important;position:relative;z-index:6!important}.admin-selection-badge{position:fixed;left:12px;bottom:12px;z-index:99999;background:#38bdf8;color:#082f49;padding:7px 12px;border-radius:8px;font:600 14px/1 Hind Siliguri,sans-serif;pointer-events:none;box-shadow:0 4px 14px #0006}
+.admin-element-selected{outline:3px solid #38bdf8!important;outline-offset:4px!important;box-shadow:0 0 0 4px #38bdf833!important;position:relative;z-index:6!important}
 </style>
 </head>
 <body>
@@ -136,22 +136,5 @@ function initElementSelection(){
  },true);
 }
 function initLogoDrag(){ return; }
-function editBoxTitle(box){openSettings()}async function resetAll(){if(confirm("সব কাস্টমাইজ করা তথ্য ডিফল্টে ফিরিয়ে দিতে চান?")){["box1_links","box2_links","settings"].forEach(k=>{localStorage.removeItem(k);});remoteData={settings:null,box1_links:null,box2_links:null};if(supabaseClient)await supabaseClient.from("site_data").delete().in("key",["settings","box1_links","box2_links"]);applySettings();localStorage.removeItem("logo_position");localStorage.removeItem("brand_position");initLogoDrag();renderSites(currentBox);showDashboard()}}async function loadRemoteData(){if(!supabaseClient){console.warn("Supabase unavailable; using local data.");return}const {data,error}=await supabaseClient.from("site_data").select("key,value");if(error){console.warn("Remote data not available yet:",error.message);return}data.forEach(r=>{remoteData[r.key]=r.value;if(r.key==="settings")localStorage.setItem("site_settings",JSON.stringify(r.value));if(r.key==="box1_links"||r.key==="box2_links")localStorage.setItem(r.key,JSON.stringify(r.value))});applySettings()}function initSafeSelection(){
-  if(sessionStorage.getItem("logged")!=="1")return;
-  if(document.body.dataset.safeSelectInit==="1")return;
-  document.body.dataset.safeSelectInit="1";
-  const selector="#dashboard-page .top-logo-wrap,#dashboard-page #site-title,#dashboard-page #site-subtitle,#dashboard-page .ticker,#dashboard-page #marquee-text,#dashboard-page #public-links-entry,#dashboard-page #public-links-title,#dashboard-page .tool,#dashboard-page .tools,#dashboard-page .box,#dashboard-page button,#dashboard-page h1,#dashboard-page h2,#dashboard-page h3,#dashboard-page p,#dashboard-page small,#dashboard-page img,#links-page .tools,#links-page .box,#links-page button,#links-page h1,#links-page h2,#links-page h3,#links-page p,#links-page small,#links-page img";
-  let badge=document.querySelector(".admin-selection-badge");
-  if(!badge){badge=document.createElement("div");badge.className="admin-selection-badge";badge.textContent="কোনো কিছু নির্বাচিত নেই";document.body.appendChild(badge)}
-  document.addEventListener("mousedown",function(e){
-    if(e.button!==0)return;
-    if(e.target.closest("input,textarea,select,.modal"))return;
-    const hit=e.target.closest(selector);
-    if(!hit)return;
-    document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-    hit.classList.add("admin-element-selected");
-    const name=(hit.id||hit.className||hit.tagName||"অংশ").toString().replace(/admin-element-selected/g,"").trim();
-    badge.textContent="নির্বাচিত: "+name;
-  },true);
-}
+function editBoxTitle(box){openSettings()}async function resetAll(){if(confirm("সব কাস্টমাইজ করা তথ্য ডিফল্টে ফিরিয়ে দিতে চান?")){["box1_links","box2_links","settings"].forEach(k=>{localStorage.removeItem(k);});remoteData={settings:null,box1_links:null,box2_links:null};if(supabaseClient)await supabaseClient.from("site_data").delete().in("key",["settings","box1_links","box2_links"]);applySettings();localStorage.removeItem("logo_position");localStorage.removeItem("brand_position");initLogoDrag();renderSites(currentBox);showDashboard()}}async function loadRemoteData(){if(!supabaseClient){console.warn("Supabase unavailable; using local data.");return}const {data,error}=await supabaseClient.from("site_data").select("key,value");if(error){console.warn("Remote data not available yet:",error.message);return}data.forEach(r=>{remoteData[r.key]=r.value;if(r.key==="settings")localStorage.setItem("site_settings",JSON.stringify(r.value));if(r.key==="box1_links"||r.key==="box2_links")localStorage.setItem(r.key,JSON.stringify(r.value))});applySettings()}function initSafeSelection(){ return; }
 async function init(){applySettings();await loadRemoteData();sessionStorage.setItem("logged","1");showDashboard();initSafeSelection()}init();
