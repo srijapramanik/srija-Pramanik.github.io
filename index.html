@@ -147,7 +147,7 @@ function initElementSelection(){
   if(sessionStorage.getItem("logged")!=="1")return;
   const button=e.target.closest(".btn");
   const textEl=e.target.closest(".text-editable");
-  const box=e.target.closest(".glass:not(.modalbox)");
+  const box=e.target.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
   const el=button||textEl||box;
   document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
   if(!el)return;
