@@ -141,28 +141,21 @@ function initTextEditing(){
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
  document.querySelectorAll(".admin-selectable").forEach(el=>el.classList.remove("admin-selectable"));
- document.querySelectorAll(".glass:not(.modalbox),.box,.tools,.ticker,.site-card,.site-card img,.btn").forEach(el=>el.classList.add("admin-selectable"));
+ document.querySelectorAll(".glass:not(.modalbox),.box,.tools,.ticker,.site-card,.btn").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.selectionInit==="1")return;
  document.body.dataset.selectionInit="1";
- const selectEl=(el,e)=>{
-  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-  if(!el)return;
-  el.classList.add("admin-element-selected");
-  if(e){e.preventDefault();e.stopPropagation();}
- };
+ const clear=()=>document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+ const select=el=>{clear();if(el)el.classList.add("admin-element-selected")};
  document.addEventListener("pointerdown",e=>{
   if(sessionStorage.getItem("logged")!=="1")return;
-  const button=e.target.closest(".btn");
-  const textEl=e.target.closest(".text-editable");
-  const box=e.target.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
-  selectEl(button||textEl||box,e);
- },true);
- document.addEventListener("click",e=>{
-  if(sessionStorage.getItem("logged")!=="1")return;
-  const button=e.target.closest(".btn");
-  const textEl=e.target.closest(".text-editable");
-  const box=e.target.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
-  selectEl(button||textEl||box,e);
+  const t=e.target;
+  const text=t.closest(".text-editable");
+  const button=t.closest(".btn");
+  if(button){select(button);e.preventDefault();e.stopPropagation();return}
+  if(text && (t===text || t.closest(".text-editable")===text)){select(text);return}
+  const box=t.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
+  if(box){select(box);e.preventDefault();e.stopPropagation();return}
+  clear();
  },true);
 }
 function initLogoDrag(){
