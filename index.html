@@ -126,13 +126,13 @@ function closeSettings(){$("settings-modal").classList.remove("show")}async func
 function initTextEditing(){ return; }
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
- document.querySelectorAll("#dashboard-page .tools").forEach(el=>el.classList.add("admin-selectable"));
+ document.querySelectorAll("#dashboard-page .top,#dashboard-page .ticker,#dashboard-page .tools").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.bigBoxSelectionInit==="1")return;
  document.body.dataset.bigBoxSelectionInit="1";
  document.addEventListener("pointerdown",ev=>{
   if(sessionStorage.getItem("logged")!=="1")return;
   if(ev.target.closest(".btn,.text-editable"))return;
-  const box=ev.target.closest("#dashboard-page .tools");
+  const box=ev.target.closest("#dashboard-page .top,#dashboard-page .ticker,#dashboard-page .tools");
   document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
   if(box){box.classList.add("admin-element-selected");ev.preventDefault();ev.stopPropagation()}
  },true);
