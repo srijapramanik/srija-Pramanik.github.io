@@ -142,7 +142,8 @@ function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
  const clear=()=>document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
  const select=el=>{clear();if(el)el.classList.add("admin-element-selected")};
- document.querySelectorAll(".glass:not(.modalbox),.box,.tools,.ticker,.site-card,.btn").forEach(el=>{
+ const boxSelector=".glass:not(.modalbox),.box,.tools,.ticker,.site-card";
+ document.querySelectorAll(boxSelector+",.btn").forEach(el=>{
   el.classList.add("admin-selectable");
   if(el.dataset.boxSelectInit==="1")return;
   el.dataset.boxSelectInit="1";
@@ -164,7 +165,9 @@ function initElementSelection(){
   const text=t.closest(".text-editable");
   if(button){select(button);e.preventDefault();e.stopPropagation();return}
   if(text){select(text);return}
-  if(!t.closest(".glass:not(.modalbox),.box,.tools,.ticker,.site-card"))clear();
+  const box=t.closest(boxSelector);
+  if(box){select(box);e.preventDefault();e.stopPropagation();return}
+  clear();
  },true);
 }
 function initLogoDrag(){
