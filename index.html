@@ -175,27 +175,159 @@ function initBigBoxDrag(){
 }
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
- document.querySelectorAll("#dashboard-page .tools").forEach(el=>el.classList.add("admin-selectable"));
- if(document.body.dataset.bigBoxSelectionInit==="1")return;
- document.body.dataset.bigBoxSelectionInit="1";
+ if(document.body.dataset.universalSelectionInit==="1")return;
+ document.body.dataset.universalSelectionInit="1";
+
+ const selector=[
+  "#dashboard-page .tools",
+  "#links-page .tools",
+  ".box",
+  ".site-card",
+  ".item",
+  ".ticker",
+  ".tag",
+  ".link-page-head",
+  ".top-logo-wrap",
+  ".site-card img",
+  ".site-logo"
+ ].join(",");
+
+ const clear=()=>document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+
+ document.querySelectorAll(selector).forEach(el=>{
+  if(el.dataset.universalDragInit==="1")return;
+  el.dataset.universalDragInit="1";
+  el.classList.add("admin-selectable");
+
+  let dragging=false,moved=false,sx=0,sy=0,ox=0,oy=0;
+
+  el.addEventListener("pointerdown",ev=>{
+   if(sessionStorage.getItem("logged")!=="1")return;
+   if(ev.button!==0)return;
+   if(ev.target.closest(".text-editable"))return;
+
+   moved=false;
+   dragging=false;
+   sx=ev.clientX;sy=ev.clientY;
+   ox=parseFloat(el.style.left)||0;
+   oy=parseFloat(el.style.top)||0;
+
+   clear();
+   el.classList.add("admin-element-selected");
+   ev.stopPropagation();
+  },true);
+
+  el.addEventListener("pointermove",ev=>{
+   if(Math.abs(ev.clientX-sx)>4||Math.abs(ev.clientY-sy)>4)moved=true;
+   if(!moved)return;
+
+   dragging=true;
+   el.style.position="relative";
+   el.style.left=(ox+ev.clientX-sx)+"px";
+   el.style.top=(oy+ev.clientY-sy)+"px";
+   ev.preventDefault();
+   ev.stopPropagation();
+  },true);
+
+  const end=ev=>{
+   if(!dragging)return;
+   dragging=false;
+   const key=el.id||el.dataset.moveKey||((el.dataset.moveKey="move_"+Math.random().toString(36).slice(2)));
+   localStorage.setItem("element_pos_"+key,JSON.stringify({
+    x:parseFloat(el.style.left)||0,
+    y:parseFloat(el.style.top)||0
+   }));
+   ev.stopPropagation();
+  };
+
+  el.addEventListener("pointerup",end,true);
+  el.addEventListener("pointercancel",end,true);
+
+  const key=el.id||el.dataset.moveKey;
+  if(key){
+   try{
+    const saved=JSON.parse(localStorage.getItem("element_pos_"+key)||"null");
+    if(saved){
+     el.style.position="relative";
+     el.style.left=(Number(saved.x)||0)+"px";
+     el.style.top=(Number(saved.y)||0)+"px";
+    }
+   }catch(e){}
+  }
+
+  el.addEventListener("click",ev=>{
+   if(moved){moved=false;return}
+   if(ev.target.closest(".text-editable"))return;
+   clear();
+   el.classList.add("admin-element-selected");
+   ev.stopPropagation();
+  },true);
+ });
+
  document.addEventListener("pointerdown",ev=>{
   if(sessionStorage.getItem("logged")!=="1")return;
-  if(ev.target.closest(".btn,.text-editable"))return;
-  const box=ev.target.closest("#dashboard-page .tools");
-  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-  if(box){box.classList.add("admin-element-selected");ev.preventDefault();ev.stopPropagation()}
+  if(ev.target.closest(".text-editable,.admin-selectable,.tools"))return;
+  clear();
  },true);
 }
 function initLogoDrag(){
- const el=document.getElementById("brand-drag"),area=document.querySelector(".dash");if(!el||!area)return;
- const saved=JSON.parse(localStorage.getItem("brand_position")||"null");
- if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){const safeY=Math.max(8,saved.y);el.style.position="absolute";el.style.left=Math.max(0,saved.x)+"px";el.style.top=safeY+"px";el.style.zIndex="5"}
- let dragging=false,sx=0,sy=0,ox=0,oy=0;
- const start=e=>{if(e.target.closest(".text-editable"))return;dragging=true;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect(),ar=area.getBoundingClientRect();ox=r.left-ar.left;oy=r.top-ar.top;el.style.position="absolute";el.style.zIndex="5";if(e.pointerId!=null)el.setPointerCapture(e.pointerId);e.preventDefault();};
- const move=e=>{if(!dragging)return;const ar=area.getBoundingClientRect(),maxX=Math.max(0,area.clientWidth-el.offsetWidth),maxY=Math.max(0,area.scrollHeight-el.offsetHeight);let x=ox+e.clientX-sx,y=oy+e.clientY-sy;x=Math.max(0,Math.min(maxX,x));y=Math.max(0,Math.min(maxY,y));el.style.left=x+"px";el.style.top=y+"px";};
- const end=()=>{if(!dragging)return;dragging=false;localStorage.setItem("brand_position",JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));};
- el.onpointerdown=start;el.onpointermove=move;el.onpointerup=end;el.onpointercancel=end;
+ const el=document.querySelector(".top-logo-wrap"),area=document.querySelector(".dash");
+ if(!el||!area)return;
+ if(el.dataset.logoDragInit==="1")return;
+ el.dataset.logoDragInit="1";
+
+ const saved=JSON.parse(localStorage.getItem("logo_position")||"null");
+ if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){
+  el.style.position="absolute";
+  el.style.left=Math.max(0,saved.x)+"px";
+  el.style.top=Math.max(8,saved.y)+"px";
+  el.style.zIndex="7";
+ }
+
+ let dragging=false,moved=false,sx=0,sy=0,ox=0,oy=0;
+
+ el.onpointerdown=e=>{
+  if(e.button!==0)return;
+  moved=false;
+  dragging=false;
+  sx=e.clientX;sy=e.clientY;
+  const r=el.getBoundingClientRect(),ar=area.getBoundingClientRect();
+  ox=r.left-ar.left;oy=r.top-ar.top;
+  el.style.position="absolute";
+  el.style.zIndex="7";
+  e.preventDefault();
+  e.stopPropagation();
+ };
+
+ el.onpointermove=e=>{
+  if(Math.abs(e.clientX-sx)>4||Math.abs(e.clientY-sy)>4)moved=true;
+  if(!moved)return;
+  dragging=true;
+  const ar=area.getBoundingClientRect();
+  const maxX=Math.max(0,area.clientWidth-el.offsetWidth);
+  const maxY=Math.max(0,area.scrollHeight-el.offsetHeight);
+  let x=ox+e.clientX-sx,y=oy+e.clientY-sy;
+  x=Math.max(0,Math.min(maxX,x));
+  y=Math.max(8,Math.min(maxY,y));
+  el.style.left=x+"px";
+  el.style.top=y+"px";
+  e.preventDefault();
+  e.stopPropagation();
+ };
+
+ const end=e=>{
+  if(!dragging)return;
+  dragging=false;
+  localStorage.setItem("logo_position",JSON.stringify({
+   x:parseFloat(el.style.left)||0,
+   y:parseFloat(el.style.top)||0
+  }));
+  e.stopPropagation();
+ };
+
+ el.onpointerup=end;
+ el.onpointercancel=end;
 }
-function editBoxTitle(box){openSettings()}async function resetAll(){if(confirm("সব কাস্টমাইজ করা তথ্য ডিফল্টে ফিরিয়ে দিতে চান?")){["box1_links","box2_links","settings"].forEach(k=>{localStorage.removeItem(k);});remoteData={settings:null,box1_links:null,box2_links:null};if(supabaseClient)await supabaseClient.from("site_data").delete().in("key",["settings","box1_links","box2_links"]);applySettings();localStorage.removeItem("logo_position");localStorage.removeItem("brand_position");initLogoDrag();renderSites(currentBox);showDashboard()}}async function loadRemoteData(){if(!supabaseClient){console.warn("Supabase unavailable; using local data.");return}const {data,error}=await supabaseClient.from("site_data").select("key,value");if(error){console.warn("Remote data not available yet:",error.message);return}data.forEach(r=>{remoteData[r.key]=r.value;if(r.key==="settings")localStorage.setItem("site_settings",JSON.stringify(r.value));if(r.key==="box1_links"||r.key==="box2_links")localStorage.setItem(r.key,JSON.stringify(r.value))});applySettings()}async function init(){applySettings();await loadRemoteData();initLogoDrag();sessionStorage.setItem("logged","1");showDashboard();initTextEditing();initElementSelection();initBigBoxDrag()}init();
+function editBoxTitle(box){openSettings()}async function resetAll(){if(confirm("সব কাস্টমাইজ করা তথ্য ডিফল্টে ফিরিয়ে দিতে চান?")){["box1_links","box2_links","settings"].forEach(k=>{localStorage.removeItem(k);});remoteData={settings:null,box1_links:null,box2_links:null};if(supabaseClient)await supabaseClient.from("site_data").delete().in("key",["settings","box1_links","box2_links"]);applySettings();localStorage.removeItem("logo_position");localStorage.removeItem("brand_position");initLogoDrag();renderSites(currentBox);showDashboard()}}async function loadRemoteData(){if(!supabaseClient){console.warn("Supabase unavailable; using local data.");return}const {data,error}=await supabaseClient.from("site_data").select("key,value");if(error){console.warn("Remote data not available yet:",error.message);return}data.forEach(r=>{remoteData[r.key]=r.value;if(r.key==="settings")localStorage.setItem("site_settings",JSON.stringify(r.value));if(r.key==="box1_links"||r.key==="box2_links")localStorage.setItem(r.key,JSON.stringify(r.value))});applySettings()}async function init(){applySettings();await loadRemoteData();sessionStorage.setItem("logged","1");showDashboard();initLogoDrag();initTextEditing();initElementSelection();initBigBoxDrag()}init();
 </script>
 </body></html>
