@@ -143,19 +143,24 @@ function initBigBoxDrag(){
  const el=document.getElementById("public-links-entry");
  if(!el||el.dataset.bigBoxDragInit==="1")return;
  el.dataset.bigBoxDragInit="1";
- let timer=null,dragging=false,sx=0,sy=0,ox=0,oy=0;
+ let dragging=false,sx=0,sy=0,ox=0,oy=0;
  try{const saved=JSON.parse(localStorage.getItem("public_links_entry_pos")||"null");if(saved){el.style.position="relative";el.style.left=(Number(saved.x)||0)+"px";el.style.top=(Number(saved.y)||0)+"px"}}catch(e){}
  el.addEventListener("pointerdown",e=>{
   if(e.button!==0)return;
-  sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
-  timer=setTimeout(()=>{dragging=true;el.style.position="relative";el.classList.add("admin-element-selected");if(e.pointerId!=null)el.setPointerCapture(e.pointerId)},350);
- });
+  dragging=true;sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+  el.style.position="relative";el.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopPropagation();
+ },true);
  el.addEventListener("pointermove",e=>{
-  if(!dragging){if(Math.abs(e.clientX-sx)>6||Math.abs(e.clientY-sy)>6)clearTimeout(timer);return}
-  el.style.left=(ox+e.clientX-sx)+"px";el.style.top=(oy+e.clientY-sy)+"px";
- });
- const end=()=>{clearTimeout(timer);if(!dragging)return;dragging=false;localStorage.setItem("public_links_entry_pos",JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}))};
- el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+  if(!dragging)return;
+  el.style.left=(ox+e.clientX-sx)+"px";el.style.top=(oy+e.clientY-sy)+"px";e.preventDefault();e.stopPropagation();
+ },true);
+ const end=e=>{
+  if(!dragging)return;
+  dragging=false;
+  localStorage.setItem("public_links_entry_pos",JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));
+  e?.stopPropagation();
+ };
+ el.addEventListener("pointerup",end,true);el.addEventListener("pointercancel",end,true);
 }
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
