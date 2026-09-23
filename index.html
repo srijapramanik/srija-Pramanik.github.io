@@ -62,19 +62,21 @@
 }
 .top-brand{flex:1;min-width:0}
 .top-brand>div:last-child{
-  display:flex;
-  align-items:center;
-  gap:18px;
   min-width:0;
+  flex:1;
 }
 .top-brand>div:last-child h1,
 .top-brand>div:last-child small{
-  white-space:nowrap;
+  display:block;
+}
+.top{
+  border:2px solid var(--border);
+  background:var(--glass);
+  padding:16px 20px;
+  min-height:92px;
 }
 @media(max-width:600px){
-  .top-brand>div:last-child{gap:8px;flex-wrap:wrap}
-  .top-brand>div:last-child h1,
-  .top-brand>div:last-child small{white-space:normal}
+  .top{padding:12px}
 }
 </style></head>
 <body>
