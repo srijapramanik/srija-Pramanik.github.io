@@ -140,40 +140,38 @@ function initTextEditing(){
 }
 function initBigBoxDrag(){
  if(sessionStorage.getItem("logged")!=="1")return;
- const el=document.getElementById("public-links-entry");
- if(!el||el.dataset.bigBoxDragInit==="1")return;
- el.dataset.bigBoxDragInit="1";
- let dragging=false,sx=0,sy=0,ox=0,oy=0;
- try{const saved=JSON.parse(localStorage.getItem("public_links_entry_pos")||"null");if(saved){el.style.position="relative";el.style.left=(Number(saved.x)||0)+"px";el.style.top=(Number(saved.y)||0)+"px"}}catch(e){}
- el.addEventListener("pointerdown",e=>{
-  if(e.button!==0)return;
-  dragging=true;sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
-  el.style.position="relative";el.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopPropagation();
- },true);
- el.addEventListener("pointermove",e=>{
-  if(!dragging)return;
-  el.style.left=(ox+e.clientX-sx)+"px";el.style.top=(oy+e.clientY-sy)+"px";e.preventDefault();e.stopPropagation();
- },true);
- const end=e=>{
-  if(!dragging)return;
-  dragging=false;
-  localStorage.setItem("public_links_entry_pos",JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));
-  e?.stopPropagation();
- };
- el.addEventListener("pointerup",end,true);el.addEventListener("pointercancel",end,true);
+ document.querySelectorAll("#dashboard-page .tools").forEach((el,index)=>{
+  if(el.dataset.bigBoxDragInit==="1")return;
+  el.dataset.bigBoxDragInit="1";
+  el.dataset.bigBoxKey=el.id||("tools_"+index);
+  let dragging=false,sx=0,sy=0,ox=0,oy=0;
+  try{const saved=JSON.parse(localStorage.getItem("bigbox_pos_"+el.dataset.bigBoxKey)||"null");if(saved){el.style.position="relative";el.style.left=(Number(saved.x)||0)+"px";el.style.top=(Number(saved.y)||0)+"px"}}catch(x){}
+  el.addEventListener("pointerdown",ev=>{
+   if(ev.target.closest(".btn,.text-editable"))return;
+   dragging=true;sx=ev.clientX;sy=ev.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+   el.style.position="relative";el.setPointerCapture?.(ev.pointerId);ev.preventDefault();ev.stopPropagation();
+   document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+   el.classList.add("admin-element-selected");
+  },true);
+  el.addEventListener("pointermove",ev=>{
+   if(!dragging)return;
+   el.style.left=(ox+ev.clientX-sx)+"px";el.style.top=(oy+ev.clientY-sy)+"px";ev.preventDefault();ev.stopPropagation();
+  },true);
+  const end=ev=>{if(!dragging)return;dragging=false;localStorage.setItem("bigbox_pos_"+el.dataset.bigBoxKey,JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));ev.stopPropagation()};
+  el.addEventListener("pointerup",end,true);el.addEventListener("pointercancel",end,true);
+ });
 }
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
- const clear=()=>document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
- const select=el=>{clear();if(el)el.classList.add("admin-element-selected")};
- const targetIds=["public-links-entry"];
- targetIds.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add("admin-selectable")});
+ document.querySelectorAll("#dashboard-page .tools").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.bigBoxSelectionInit==="1")return;
  document.body.dataset.bigBoxSelectionInit="1";
- document.addEventListener("pointerdown",e=>{
+ document.addEventListener("pointerdown",ev=>{
   if(sessionStorage.getItem("logged")!=="1")return;
-  const target=e.target.closest("#public-links-entry");
-  if(target){select(target);e.preventDefault();e.stopPropagation();return}
+  if(ev.target.closest(".btn,.text-editable"))return;
+  const box=ev.target.closest("#dashboard-page .tools");
+  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+  if(box){box.classList.add("admin-element-selected");ev.preventDefault();ev.stopPropagation()}
  },true);
 }
 function initLogoDrag(){
