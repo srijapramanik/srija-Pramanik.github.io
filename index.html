@@ -144,17 +144,25 @@ function initElementSelection(){
  document.querySelectorAll(".glass:not(.modalbox),.box,.tools,.ticker,.site-card,.site-card img,.btn").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.selectionInit==="1")return;
  document.body.dataset.selectionInit="1";
+ const selectEl=(el,e)=>{
+  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+  if(!el)return;
+  el.classList.add("admin-element-selected");
+  if(e){e.preventDefault();e.stopPropagation();}
+ };
+ document.addEventListener("pointerdown",e=>{
+  if(sessionStorage.getItem("logged")!=="1")return;
+  const button=e.target.closest(".btn");
+  const textEl=e.target.closest(".text-editable");
+  const box=e.target.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
+  selectEl(button||textEl||box,e);
+ },true);
  document.addEventListener("click",e=>{
   if(sessionStorage.getItem("logged")!=="1")return;
   const button=e.target.closest(".btn");
   const textEl=e.target.closest(".text-editable");
   const box=e.target.closest(".site-card,.box,.tools,.ticker,.glass:not(.modalbox)");
-  const el=button||textEl||box;
-  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-  if(!el)return;
-  e.preventDefault();
-  e.stopPropagation();
-  el.classList.add("admin-element-selected");
+  selectEl(button||textEl||box,e);
  },true);
 }
 function initLogoDrag(){
