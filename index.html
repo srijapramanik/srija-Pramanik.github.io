@@ -143,28 +143,13 @@ function initElementSelection(){
  const clear=()=>document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
  const select=el=>{clear();if(el)el.classList.add("admin-element-selected")};
  const boxSelector=".glass:not(.modalbox),.box,.tools,.ticker,.site-card";
- document.querySelectorAll(boxSelector+",.btn").forEach(el=>{
-  el.classList.add("admin-selectable");
-  if(el.dataset.boxSelectInit==="1")return;
-  el.dataset.boxSelectInit="1";
-  el.addEventListener("pointerdown",e=>{
-   if(sessionStorage.getItem("logged")!=="1")return;
-   const t=e.target;
-   if(t.closest(".btn")||t.closest(".text-editable"))return;
-   select(el);
-   e.preventDefault();
-   e.stopPropagation();
-  });
- });
- if(document.body.dataset.selectionInit==="1")return;
- document.body.dataset.selectionInit="1";
+ document.querySelectorAll(boxSelector).forEach(el=>el.classList.add("admin-selectable"));
  document.addEventListener("pointerdown",e=>{
   if(sessionStorage.getItem("logged")!=="1")return;
   const t=e.target;
-  const button=t.closest(".btn");
   const text=t.closest(".text-editable");
-  if(button){select(button);e.preventDefault();e.stopPropagation();return}
-  if(text){select(text);return}
+  const button=t.closest(".btn");
+  if(text||button)return;
   const box=t.closest(boxSelector);
   if(box){select(box);e.preventDefault();e.stopPropagation();return}
   clear();
