@@ -191,7 +191,7 @@ function initLogoDrag(){
  const saved=JSON.parse(localStorage.getItem("brand_position")||"null");
  if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){const safeY=Math.max(8,saved.y);el.style.position="absolute";el.style.left=Math.max(0,saved.x)+"px";el.style.top=safeY+"px";el.style.zIndex="5"}
  let dragging=false,sx=0,sy=0,ox=0,oy=0;
- const start=e=>{dragging=true;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect(),ar=area.getBoundingClientRect();ox=r.left-ar.left;oy=r.top-ar.top;el.style.position="absolute";el.style.zIndex="5";if(e.pointerId!=null)el.setPointerCapture(e.pointerId);e.preventDefault();};
+ const start=e=>{if(e.target.closest(".text-editable"))return;dragging=true;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect(),ar=area.getBoundingClientRect();ox=r.left-ar.left;oy=r.top-ar.top;el.style.position="absolute";el.style.zIndex="5";if(e.pointerId!=null)el.setPointerCapture(e.pointerId);e.preventDefault();};
  const move=e=>{if(!dragging)return;const ar=area.getBoundingClientRect(),maxX=Math.max(0,area.clientWidth-el.offsetWidth),maxY=Math.max(0,area.scrollHeight-el.offsetHeight);let x=ox+e.clientX-sx,y=oy+e.clientY-sy;x=Math.max(0,Math.min(maxX,x));y=Math.max(0,Math.min(maxY,y));el.style.left=x+"px";el.style.top=y+"px";};
  const end=()=>{if(!dragging)return;dragging=false;localStorage.setItem("brand_position",JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));};
  el.onpointerdown=start;el.onpointermove=move;el.onpointerup=end;el.onpointercancel=end;
