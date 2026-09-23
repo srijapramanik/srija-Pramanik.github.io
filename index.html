@@ -97,130 +97,58 @@ function closeSettings(){$("settings-modal").classList.remove("show")}async func
 function initTextEditing(){
  if(sessionStorage.getItem("logged")!=="1")return;
  document.body.classList.add("admin-text-editing");
-
- // Each visible text element gets its own independent selection.
  const skip=new Set(["SCRIPT","STYLE","INPUT","TEXTAREA","SELECT","OPTION","IMG"]);
  const els=[...document.body.querySelectorAll("*")].filter(el=>{
   if(skip.has(el.tagName)||el.closest("[data-no-text-edit]"))return false;
   if(el.dataset.textEditInit)return false;
   const direct=[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
   if(!direct)return false;
-  // Do not select a container when it has a text-bearing child.
   const childText=[...el.children].some(ch=>[...ch.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));
   return !childText;
  });
-
- const clear=()=>{
-  document.querySelectorAll(".admin-element-selected,.text-editing-active")
-    .forEach(x=>x.classList.remove("admin-element-selected","text-editing-active"));
- };
-
+ const clear=()=>document.querySelectorAll(".admin-element-selected,.text-editing-active").forEach(x=>x.classList.remove("admin-element-selected","text-editing-active"));
  const keyFor=el=>{
   if(el.id)return el.id;
   if(!el.dataset.textMoveKey){
    const p=[];let n=el;
-   while(n&&n!==document.body){
-    const par=n.parentElement;
-    p.unshift(n.tagName+":"+(par?[...par.children].indexOf(n):0));
-    n=par;
-   }
+   while(n&&n!==document.body){const par=n.parentElement;p.unshift(n.tagName+":"+(par?[...par.children].indexOf(n):0));n=par}
    el.dataset.textMoveKey=p.join("/");
   }
   return el.dataset.textMoveKey;
  };
-
  els.forEach(el=>{
-  el.dataset.textEditInit="1";
-  el.classList.add("text-editable");
-  el.contentEditable="false";
-  el.spellcheck=false;
+  el.dataset.textEditInit="1";el.classList.add("text-editable");el.contentEditable="false";el.spellcheck=false;
   const key=keyFor(el);
-
-  try{
-   const saved=JSON.parse(localStorage.getItem("text_pos_"+key)||"null");
-   if(saved){
-    el.style.position="relative";
-    el.style.left=saved.x+"px";
-    el.style.top=saved.y+"px";
-   }
-  }catch(e){}
-
-  let dragging=false,sx=0,sy=0,ox=0,oy=0,moved=false;
-
-  el.addEventListener("click",e=>{
-   if(moved){moved=false;return;}
-   clear();
-   el.classList.add("admin-element-selected");
-   e.stopPropagation();
-  },true);
-
-  el.addEventListener("dblclick",e=>{
-   clear();
-   el.classList.add("admin-element-selected","text-editing-active");
-   el.contentEditable="true";
-   el.focus();
-   e.stopPropagation();
-  },true);
-
+  try{const saved=JSON.parse(localStorage.getItem("text_pos_"+key)||"null");if(saved){el.style.position="relative";el.style.left=saved.x+"px";el.style.top=saved.y+"px"}}catch(e){}
+  let dragging=false,moved=false,sx=0,sy=0,ox=0,oy=0;
+  el.addEventListener("click",e=>{if(moved){moved=false;return}clear();el.classList.add("admin-element-selected");e.stopPropagation()},true);
+  el.addEventListener("dblclick",e=>{clear();el.classList.add("admin-element-selected","text-editing-active");el.contentEditable="true";el.focus();e.stopPropagation()},true);
   el.addEventListener("pointerdown",e=>{
    if(e.button!==0)return;
-   moved=false;sx=e.clientX;sy=e.clientY;
-   ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
-   clear();
-   el.classList.add("admin-element-selected");
-   el.style.position="relative";
-   if(e.pointerId!=null)el.setPointerCapture(e.pointerId);
+   moved=false;dragging=false;sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+   clear();el.classList.add("admin-element-selected");
+   e.stopPropagation();
   },true);
-
   el.addEventListener("pointermove",e=>{
-   if(Math.abs(e.clientX-sx)>4||Math.abs(e.clientY-sy)>4){
-    moved=true;
-    dragging=true;
-   }
-   if(!dragging)return;
-   el.style.left=(ox+e.clientX-sx)+"px";
-   el.style.top=(oy+e.clientY-sy)+"px";
-   e.preventDefault();
+   if(Math.abs(e.clientX-sx)>4||Math.abs(e.clientY-sy)>4)moved=true;
+   if(!moved)return;
+   dragging=true;el.style.position="relative";
+   el.style.left=(ox+e.clientX-sx)+"px";el.style.top=(oy+e.clientY-sy)+"px";
+   e.preventDefault();e.stopPropagation();
   },true);
-
   const end=e=>{
    if(dragging){
+    localStorage.setItem("text_pos_"+key,JSON.stringify({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0}));
     dragging=false;
-    localStorage.setItem("text_pos_"+key,JSON.stringify({
-     x:parseFloat(el.style.left)||0,
-     y:parseFloat(el.style.top)||0
-    }));
-   }
-   if(el.contentEditable==="true" && !e?.detail){
-    // keep editing enabled after double-click
    }
   };
-  el.addEventListener("pointerup",end,true);
-  el.addEventListener("pointercancel",end,true);
-
+  el.addEventListener("pointerup",end,true);el.addEventListener("pointercancel",end,true);
   el.addEventListener("input",()=>{
-   const map={
-    "site-title":"siteTitle",
-    "site-subtitle":"siteSubtitle",
-    "marquee-text":"marquee",
-    "public-links-title":"publicLinksTitle",
-    "public-box1-btn":"box1Button",
-    "public-box2-btn":"box2Button",
-    "settings-title":"settingsTitle",
-    "links-title":"box1Title",
-    "link-page-subtitle":"linkPageSubtitle"
-   };
-   if(el.id&&map[el.id]){
-    const s=getSettings();
-    s[map[el.id]]=el.innerText;
-    localStorage.setItem("site_settings",JSON.stringify(s));
-   }
+   const map={"site-title":"siteTitle","site-subtitle":"siteSubtitle","marquee-text":"marquee","public-links-title":"publicLinksTitle","public-box1-btn":"box1Button","public-box2-btn":"box2Button","settings-title":"settingsTitle","links-title":"box1Title","link-page-subtitle":"linkPageSubtitle"};
+   if(el.id&&map[el.id]){const s=getSettings();s[map[el.id]]=el.innerText;localStorage.setItem("site_settings",JSON.stringify(s))}
   });
  });
-
- document.addEventListener("pointerdown",e=>{
-  if(!e.target.closest(".text-editable,.admin-selectable,.tools"))clear();
- },true);
+ document.addEventListener("pointerdown",e=>{if(!e.target.closest(".text-editable,.admin-selectable,.tools"))clear()},true);
 }
 function initBigBoxDrag(){
  if(sessionStorage.getItem("logged")!=="1")return;
