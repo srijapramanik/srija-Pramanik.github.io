@@ -443,8 +443,8 @@ function quickEditorEnsureToolbar(){
    '</div>'+
    '<div id="quick-editor-rich" class="quick-editor-rich" contenteditable="true" spellcheck="false"></div>'+
    '<div class="quick-box-controls">'+
-   '<label>চওড়া <input id="qe-width" type="text" placeholder="auto"></label>'+
-   '<label>উচ্চতা <input id="qe-height" type="text" placeholder="auto"></label>'+
+   '<label>চওড়া <span class="qe-size-step"><button type="button" id="qe-width-minus">−</button><input id="qe-width" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-width-plus">+</button></span></label>'+
+   '<label>উচ্চতা <span class="qe-size-step"><button type="button" id="qe-height-minus">−</button><input id="qe-height" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-height-plus">+</button></span></label>'+
    '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label>'+
    '</div>';
  const ed=document.getElementById("quick-editor-rich");
@@ -458,6 +458,22 @@ function quickEditorEnsureToolbar(){
  host.querySelector("#qe-size").addEventListener("change",e=>{ed.focus();document.execCommand("fontSize",false,"7");ed.querySelectorAll('font[size="7"]').forEach(x=>{x.removeAttribute("size");x.style.fontSize=e.target.value});keep()});
  host.querySelector("#qe-color").addEventListener("input",e=>{ed.focus();document.execCommand("foreColor",false,e.target.value);keep()});
  host.querySelector("#qe-highlight").addEventListener("input",e=>{ed.focus();if(document.queryCommandSupported("hiliteColor"))document.execCommand("hiliteColor",false,e.target.value);else document.execCommand("backColor",false,e.target.value);keep()});
+ const step=(id,delta)=>{
+   const input=host.querySelector("#"+id); if(!input)return;
+   let n=parseFloat(input.value);
+   if(!Number.isFinite(n))n=0;
+   n=Math.max(0,n+delta);
+   input.value=String(n);
+   input.dispatchEvent(new Event("input",{bubbles:true}));
+   const target=document.querySelector(".admin-element-selected");
+   if(target)target.style[id==="qe-width"?"width":"height"]=n+"px";
+ };
+ host.querySelector("#qe-width-minus").addEventListener("click",()=>step("qe-width",-10));
+ host.querySelector("#qe-width-plus").addEventListener("click",()=>step("qe-width",10));
+ host.querySelector("#qe-height-minus").addEventListener("click",()=>step("qe-height",-10));
+ host.querySelector("#qe-height-plus").addEventListener("click",()=>step("qe-height",10));
+ host.querySelector("#qe-width").addEventListener("input",e=>{const n=parseFloat(e.target.value);const target=document.querySelector(".admin-element-selected");if(target&&Number.isFinite(n))target.style.width=n+"px"});
+ host.querySelector("#qe-height").addEventListener("input",e=>{const n=parseFloat(e.target.value);const target=document.querySelector(".admin-element-selected");if(target&&Number.isFinite(n))target.style.height=n+"px"});
 }
 function quickIsTextElement(el){
  if(!el)return false;
