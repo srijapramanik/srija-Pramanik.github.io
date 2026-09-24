@@ -589,24 +589,36 @@ function initBoxDrag(){
    parent.addEventListener("pointerdown",ev=>{
      if(sessionStorage.getItem("logged")!=="1")return;
      const t=ev.target instanceof Element?ev.target:null;if(!t)return;
+     if(t.closest("button,a,input,textarea,select,label,.actions"))return;
+     const text=t.closest(".text-editable");
+     if(text&&text.parentElement){
+       document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+       text.classList.add("admin-element-selected");
+       drag={el:text,startX:ev.clientX,startY:ev.clientY,moved:false,text:true};
+       return;
+     }
      const el=t.closest(".drag-box");
      if(!el||el.parentElement!==parent)return;
-     if(t.closest("button,a,input,textarea,select,label,.actions"))return;
      document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
      el.classList.add("admin-element-selected");
-     drag={el,startY:ev.clientY,moved:false};
+     drag={el,startY:ev.clientY,moved:false,text:false};
    });
    parent.addEventListener("pointermove",ev=>{
      if(!drag)return;
+     if(drag.text){
+       const dx=ev.clientX-drag.startX,dy=ev.clientY-drag.startY;
+       if(Math.abs(dx)+Math.abs(dy)<6)return;
+       drag.moved=true;
+       const el=drag.el;
+       el.style.transform="translate("+dx+"px,"+dy+"px)";
+       return;
+     }
      const dy=ev.clientY-drag.startY;
      if(Math.abs(dy)<6)return;
      drag.moved=true;
      const el=drag.el;
      const siblings=[...parent.children].filter(x=>x.classList.contains("drag-box")&&x!==el);
-     const over=siblings.find(x=>{
-       const r=x.getBoundingClientRect();
-       return ev.clientY>r.top && ev.clientY<r.bottom;
-     });
+     const over=siblings.find(x=>{const r=x.getBoundingClientRect();return ev.clientY>r.top&&ev.clientY<r.bottom});
      if(over){
        const r=over.getBoundingClientRect();
        if(ev.clientY<r.top+r.height/2)parent.insertBefore(el,over);
@@ -614,7 +626,12 @@ function initBoxDrag(){
      }
    });
    parent.addEventListener("pointerup",()=>{
-     if(drag&&drag.moved)saveOrder(parent);
+     if(drag&&drag.moved){
+       if(drag.text){
+         const all=getQuickStyles(),id=drag.el.id;
+         if(id){all[id]=all[id]||{};all[id].transform=drag.el.style.transform;localStorage.setItem("quick_element_styles",JSON.stringify(all))}
+       }else saveOrder(parent);
+     }
      drag=null;
    });
    parent.addEventListener("pointercancel",()=>{drag=null});
@@ -622,11 +639,13 @@ function initBoxDrag(){
  const dashboard=document.querySelector("#dashboard-page>.dash");
  if(dashboard){
    dashboard.querySelectorAll(":scope>#top-mini-nav,:scope>.top,:scope>.ticker,:scope>#public-links-entry,:scope>.admin-only").forEach(x=>x.classList.add("drag-box"));
+   dashboard.querySelectorAll(".text-editable").forEach(x=>{if(!x.id)x.id="quick-"+Math.random().toString(36).slice(2,10)});
    initParent(dashboard);
  }
  const links=document.getElementById("site-grid");
  if(links){
    links.querySelectorAll(".site-card").forEach(x=>x.classList.add("drag-box"));
+   links.querySelectorAll(".text-editable").forEach(x=>{if(!x.id)x.id="quick-"+Math.random().toString(36).slice(2,10)});
    initParent(links);
  }
 }
