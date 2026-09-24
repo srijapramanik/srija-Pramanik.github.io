@@ -282,6 +282,41 @@
   white-space:nowrap!important;
 }
 </style>
+<style id="single-top-box-fix">
+#dashboard-page>.dash>#top-mini-nav{
+  height:120px!important;
+  min-height:120px!important;
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  padding:10px 12px!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#dashboard-page>.dash>#top-mini-nav>#top-header{
+  flex:1 1 auto!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:80px!important;
+  margin:0!important;
+  padding:8px 12px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+}
+#dashboard-page>.dash>#top-mini-nav .top-nav-btn{
+  flex:0 0 auto!important;
+}
+@media(max-width:900px){
+ #dashboard-page>.dash>#top-mini-nav{
+  height:130px!important;
+  min-height:130px!important;
+ }
+}
+</style>
 </head>
 <body>
 <div id="links-page" class="page">
