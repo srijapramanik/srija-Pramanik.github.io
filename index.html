@@ -592,6 +592,8 @@ function initBoxDrag(){
      const el=t.closest(".drag-box");
      if(!el||el.parentElement!==parent)return;
      if(t.closest("button,a,input,textarea,select,label,.actions"))return;
+     document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+     el.classList.add("admin-element-selected");
      drag={el,startY:ev.clientY,moved:false};
    });
    parent.addEventListener("pointermove",ev=>{
