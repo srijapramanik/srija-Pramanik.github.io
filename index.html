@@ -162,7 +162,15 @@
  #dashboard-page>.dash{padding:5px!important}
  #dashboard-page #public-links-entry .toolgrid{grid-template-columns:1fr!important}
 }
-</style></head>
+</style><style>
+/* Final top navigation: compact, right aligned, without changing other page settings */
+#dashboard-page .top-mini-nav{justify-content:flex-end!important;gap:6px!important;height:auto!important;min-height:0!important;padding:6px 8px!important;overflow-x:auto!important;}
+#dashboard-page .top-mini-nav .top-nav-btn{flex:0 0 auto!important;width:auto!important;min-width:auto!important;padding:6px 9px!important;font-size:12px!important;border-radius:8px!important;white-space:nowrap!important;}
+@media(max-width:600px){
+ #dashboard-page .top-mini-nav{justify-content:flex-end!important;gap:4px!important;padding:5px!important;}
+ #dashboard-page .top-mini-nav .top-nav-btn{flex:0 0 auto!important;min-width:auto!important;padding:6px 7px!important;font-size:11px!important;}
+}
+</style>\n</head>
 <body>
 <div id="links-page" class="page">
 </div>
