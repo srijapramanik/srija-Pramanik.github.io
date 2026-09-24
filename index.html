@@ -126,7 +126,19 @@
 #quick-editor-fields small{display:none}
 #quick-editor-modal .modal-actions{position:sticky;bottom:0;padding-top:12px;background:#111827;margin-top:14px;z-index:2}
 @media(max-width:430px){#quick-editor-fields{grid-template-columns:1fr}}
-</style></style></head>
+</style></style>
+<style>
+/* Make first-page boxes span the full screen width */
+#dashboard-page{width:100%;padding:10px 12px!important}
+#dashboard-page>.dash{width:100%!important;max-width:none!important;margin:0!important}
+#dashboard-page .top-mini-nav,
+#dashboard-page #top-header,
+#dashboard-page #notice-ticker,
+#dashboard-page #public-links-entry,
+#dashboard-page .admin-only{width:100%!important}
+@media(max-width:600px){#dashboard-page{padding:8px!important}}
+</style>
+</head>
 <body>
 <div id="links-page" class="page">
 </div>
