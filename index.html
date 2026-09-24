@@ -601,9 +601,9 @@ function initBoxDrag(){
      if(!el||el.parentElement!==parent)return;
      document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
      el.classList.add("admin-element-selected");
-     drag={el,startY:ev.clientY,moved:false,text:false};
+     drag={el,startY:ev.clientY,moved:false,text:false,pointerId:ev.pointerId}; try{el.setPointerCapture(ev.pointerId)}catch(e){}
    });
-   parent.addEventListener("pointermove",ev=>{
+   document.addEventListener("pointermove",ev=>{
      if(!drag)return;
      if(drag.text){
        const dx=ev.clientX-drag.startX,dy=ev.clientY-drag.startY;
@@ -625,7 +625,7 @@ function initBoxDrag(){
        else parent.insertBefore(el,over.nextSibling);
      }
    });
-   parent.addEventListener("pointerup",()=>{
+   document.addEventListener("pointerup",ev=>{
      if(drag&&drag.moved){
        if(drag.text){
          const all=getQuickStyles(),id=drag.el.id;
