@@ -560,8 +560,10 @@ function initElementSelection(){
    if(t.closest(".top-nav-btn.setting"))return;
    const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page||t===page)return;
    if(t.closest("input,textarea,select"))return;
-   /* Click a blank page area to clear the current selection. */
-   if(!t.closest(".drag-box") && !t.closest(".admin-only button") && !t.closest(".top-nav-btn")){
+   /* Click any truly blank page area to clear the current selection. */
+   const clickedBox=t.closest(".drag-box");
+   const clickedInteractive=t.closest("button,a,input,textarea,select,label,[role="button"]");
+   if(!clickedBox && !clickedInteractive){
       document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
       return;
    }
