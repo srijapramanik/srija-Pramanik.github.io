@@ -59,6 +59,10 @@
 .top-mini-nav{height:76px;min-height:76px;padding:10px 8px;display:flex;align-items:center;}
 .top-mini-nav .top-nav-btn{padding:10px 11px;}
 @media(max-width:600px){.top-mini-nav{height:76px;min-height:76px;padding:10px 5px}.top-mini-nav .top-nav-btn{padding:10px 9px}}
+/* Compact top navigation buttons aligned to the right */
+.top-mini-nav{justify-content:flex-end;gap:6px;padding:6px 8px;overflow-x:auto;}
+.top-mini-nav .top-nav-btn{flex:0 0 auto;min-width:auto;width:auto;padding:6px 9px;font-size:12px;border-radius:8px;}
+@media(max-width:600px){.top-mini-nav{justify-content:flex-end;gap:4px;padding:5px}.top-mini-nav .top-nav-btn{padding:6px 7px;font-size:11px}}
 /* Compact top navigation requested by user */
 .top-mini-nav{width:100%;display:flex;align-items:center;justify-content:flex-start;gap:7px;flex-wrap:nowrap;margin:0 0 10px;padding:6px 8px;background:var(--glass);border:1px solid var(--border);border-radius:12px;overflow-x:auto}
 .top-mini-nav .top-nav-btn{flex:0 0 auto;width:auto;min-width:72px;padding:7px 11px;border-radius:9px;font-size:13px;white-space:nowrap}
