@@ -185,7 +185,36 @@
 #dashboard-page #public-links-entry,
 #dashboard-page .admin-only{width:100%!important;max-width:100%!important;box-sizing:border-box!important;}
 #dashboard-page *{box-sizing:border-box;}
-</style>\n</head>
+</style>\n<style id="final-first-page-box-size">
+/* First page: keep every outer box smaller and fully inside the screen */
+#dashboard-page{padding:8px!important;overflow-x:hidden!important;box-sizing:border-box!important}
+#dashboard-page>.dash{width:100%!important;max-width:100%!important;margin:0 auto!important;padding:6px 8px!important;box-sizing:border-box!important}
+#dashboard-page>.dash>#top-mini-nav,
+#dashboard-page>.dash>#top-header,
+#dashboard-page>.dash>#notice-ticker,
+#dashboard-page>.dash>#public-links-entry,
+#dashboard-page>.dash>.admin-only{
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+#dashboard-page>.dash>#top-header{padding:12px 14px!important;min-height:78px!important}
+#dashboard-page>.dash>#notice-ticker{padding:8px 10px!important;margin-bottom:14px!important}
+#dashboard-page>.dash>#public-links-entry{padding:12px!important;margin-bottom:14px!important;border-radius:16px!important}
+#dashboard-page>.dash>.admin-only{padding:12px!important;border-radius:16px!important}
+#dashboard-page #public-links-entry .toolgrid{gap:8px!important}
+@media(max-width:600px){
+  #dashboard-page{padding:5px!important}
+  #dashboard-page>.dash{padding:4px 5px!important}
+  #dashboard-page>.dash>#top-header{padding:10px!important;min-height:70px!important}
+  #dashboard-page>.dash>#notice-ticker,
+  #dashboard-page>.dash>#public-links-entry,
+  #dashboard-page>.dash>.admin-only{padding:9px!important}
+}
+</style>
+</head>
 <body>
 <div id="links-page" class="page">
 </div>
