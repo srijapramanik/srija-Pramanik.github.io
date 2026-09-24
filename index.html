@@ -317,7 +317,19 @@
  }
 }
 </style>
-</head>
+<style>
+.word-toolbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;margin-bottom:8px;position:sticky;top:0;z-index:2}
+.word-toolbar button,.word-toolbar select{height:34px;min-width:34px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#111827;cursor:pointer;padding:0 8px}
+.word-toolbar select{min-width:82px}
+.word-toolbar button:hover,.word-toolbar select:hover{background:#e2e8f0}
+.qe-color{height:34px;min-width:34px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#111827;display:flex;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-weight:700;padding:0 4px}
+.qe-color input{width:22px!important;height:22px!important;padding:0!important;border:0!important;cursor:pointer}
+.quick-editor-rich{min-height:150px;max-height:300px;overflow:auto;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#111827;text-align:left;outline:none;line-height:1.5}
+.quick-box-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.quick-box-controls label{font-size:13px;color:#cbd5e1}
+.quick-box-controls input{margin-top:4px;min-height:38px}
+@media(max-width:600px){.quick-box-controls{grid-template-columns:1fr}.word-toolbar{gap:4px}.word-toolbar button,.word-toolbar select,.qe-color{height:32px}}
+</style></head>
 <body>
 <div id="links-page" class="page">
 </div>
@@ -377,22 +389,101 @@ function initTextEditing(){ return; }
 function getQuickStyles(){try{return JSON.parse(localStorage.getItem("quick_element_styles")||"{}")}catch(e){return {}}}
 function applyQuickStyles(){const all=getQuickStyles();Object.keys(all).forEach(id=>{const el=document.getElementById(id);if(!el)return;const s=all[id]||{};Object.keys(s).forEach(k=>{if(s[k]!==""&&s[k]!=null)el.style[k]=s[k]})})}
 function getQuickTexts(){try{return JSON.parse(localStorage.getItem("quick_element_texts")||"{}")}catch(e){return {}}}
-function applyQuickTexts(){const all=getQuickTexts();Object.keys(all).forEach(id=>{const el=document.getElementById(id);if(el&&all[id]!=null)el.textContent=all[id]})}
+function getQuickHtml(){try{return JSON.parse(localStorage.getItem("quick_element_html")||"{}")}catch(e){return {}}}
+function applyQuickTexts(){
+ const htmlAll=getQuickHtml(), textAll=getQuickTexts();
+ Object.keys(htmlAll).forEach(id=>{const el=document.getElementById(id);if(el&&htmlAll[id]!=null)el.innerHTML=htmlAll[id]});
+ Object.keys(textAll).forEach(id=>{const el=document.getElementById(id);if(el&&htmlAll[id]==null&&textAll[id]!=null)el.textContent=textAll[id]});
+}
 function quickTargetName(id){const m={"top-header":"প্রধান হেডার","notice-ticker":"বিজ্ঞপ্তি / স্ক্রলিং লেখা","site-title":"প্রধান সাইটের নাম","site-subtitle":"সাইটের নিচের লেখা","marquee-text":"বিজ্ঞপ্তির লেখা","public-links-entry":"ওয়েবসাইট লিঙ্ক বক্স","public-links-title":"লিঙ্ক সেকশনের নাম","public-box1-btn":"সরকারি ওয়েবসাইট বাটন","public-box2-btn":"অনলাইন টুলস বাটন","site-logo":"লোগো"};return m[id]||"নির্বাচিত অংশ"}
 function startQuickEditMode(){if(sessionStorage.getItem("logged")!=="1"){alert("আগে অ্যাডমিন হিসেবে লগইন করুন।");return}document.body.dataset.quickEditMode="1";document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));let b=document.getElementById("quick-edit-hint");if(!b){b=document.createElement("div");b.id="quick-edit-hint";b.innerHTML="🎯 <b>সহজে পরিবর্তন চালু</b> — এখন যে লেখা/বক্স/ছবি/বাটন পরিবর্তন করতে চান সেটিতে ক্লিক করুন।";b.style.cssText="position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9999;background:#0f172a;color:#fff;border:2px solid #38bdf8;border-radius:12px;padding:10px 16px;box-shadow:0 8px 30px #0008;font-size:15px;max-width:92vw;text-align:center";document.body.appendChild(b)}else b.style.display="block"}
-function openQuickEditor(){const el=document.querySelector(".admin-element-selected");if(!el){startQuickEditMode();return}const id=el.id;if(!id){alert("এই অংশের সহজ সম্পাদনা এখনো চালু করা হয়নি।");return}const all=getQuickStyles(),s=all[id]||{},texts=getQuickTexts(),isLogo=id==="site-logo";const ta=document.getElementById("quick-editor-text");const tw=document.getElementById("quick-editor-text-wrap");if(tw)tw.style.display=isLogo?"none":"block";if(ta){ta.value=isLogo?"":((texts[id]&&texts[id].trim())?texts[id]:(el.innerText||el.textContent||"").trim());ta.focus();}const fields=isLogo?[["width","প্রস্থ","px"],["height","উচ্চতা","px"]]:[["fontSize","লেখার সাইজ","px"],["color","লেখার রং",""],["backgroundColor","ব্যাকগ্রাউন্ড রং",""],["width","চওড়া","px"],["height","উচ্চতা","px"],["fontFamily","Font / অক্ষরের ধরন",""],["fontWeight","লেখার মোটা/পাতলা",""],["fontStyle","Italic / বাঁকা লেখা",""],["textDecoration","Underline / নিচে দাগ",""],["textAlign","বাম / মাঝ / ডান",""]];const wrap=document.getElementById("quick-editor-fields");wrap.innerHTML=fields.map(([k,l,u])=>{const v=s[k]||"";if(k==="fontWeight")return '<div class="group"><label>'+l+'</label><select data-q="'+k+'"><option value="">আগের মতো</option><option value="400">Normal</option><option value="600">Semi Bold</option><option value="700">Bold</option></select></div>';if(k==="fontStyle")return '<div class="group"><label>'+l+'</label><select data-q="'+k+'"><option value="">আগের মতো</option><option value="normal">Normal</option><option value="italic">Italic</option></select></div>';if(k==="textDecoration")return '<div class="group"><label>'+l+'</label><select data-q="'+k+'"><option value="">আগের মতো</option><option value="none">কোনও দাগ নয়</option><option value="underline">Underline</option></select></div>';if(k==="textAlign")return '<div class="group"><label>'+l+'</label><select data-q="'+k+'"><option value="">আগের মতো</option><option value="left">⬅️ বাম দিকে</option><option value="center">↔️ মাঝখানে</option><option value="right">➡️ ডান দিকে</option></select></div>';if(k==="fontFamily")return '<div class="group"><label>'+l+'</label><select data-q="'+k+'"><option value="">আগের মতো</option><option value="Hind Siliguri">Hind Siliguri</option><option value="Poppins">Poppins</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Times New Roman">Times New Roman</option></select></div>';return '<div class="group"><label>'+l+'</label><input data-q="'+k+'" value="'+String(v).replace(/"/g,"&quot;")+'" placeholder="'+(u?"যেমন 20":"#ffffff")+'"></div>'}).join("");wrap.querySelectorAll("[data-q]").forEach(x=>x.value=s[x.dataset.q]||"");document.getElementById("quick-editor-name").innerText="নির্বাচিত: "+quickTargetName(id);const modal=document.getElementById("quick-editor-modal");modal.classList.add("show");setTimeout(()=>{if(ta&&!isLogo)ta.focus()},50)}
+function quickEditorEnsureToolbar(){
+ const host=document.getElementById("quick-editor-fields"); if(!host)return;
+ host.innerHTML=
+   '<div class="word-toolbar" id="quick-word-toolbar">'+
+   '<select id="qe-font" title="Font"><option value="">Font</option><option>Hind Siliguri</option><option>Poppins</option><option>Arial</option><option>Georgia</option><option>Times New Roman</option></select>'+
+   '<select id="qe-size" title="Font Size"><option value="">Size</option><option value="12px">12</option><option value="14px">14</option><option value="16px">16</option><option value="18px">18</option><option value="20px">20</option><option value="24px">24</option><option value="28px">28</option><option value="32px">32</option><option value="40px">40</option><option value="48px">48</option></select>'+
+   '<button type="button" data-cmd="bold" title="Bold"><b>B</b></button>'+
+   '<button type="button" data-cmd="italic" title="Italic"><i>I</i></button>'+
+   '<button type="button" data-cmd="underline" title="Underline"><u>U</u></button>'+
+   '<label class="qe-color" title="Text Color">A<input id="qe-color" type="color" value="#000000"></label>'+
+   '<label class="qe-color" title="Highlight">▰<input id="qe-highlight" type="color" value="#ffff00"></label>'+
+   '<button type="button" data-cmd="justifyLeft" title="Left">≡</button>'+
+   '<button type="button" data-cmd="justifyCenter" title="Center">≡</button>'+
+   '<button type="button" data-cmd="justifyRight" title="Right">≡</button>'+
+   '<button type="button" data-cmd="removeFormat" title="Clear formatting">Tx</button>'+
+   '</div>'+
+   '<div id="quick-editor-rich" class="quick-editor-rich" contenteditable="true" spellcheck="false"></div>'+
+   '<div class="quick-box-controls">'+
+   '<label>চওড়া <input id="qe-width" type="text" placeholder="auto"></label>'+
+   '<label>উচ্চতা <input id="qe-height" type="text" placeholder="auto"></label>'+
+   '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label>'+
+   '</div>';
+ const ed=document.getElementById("quick-editor-rich");
+ const keep=()=>{const sel=window.getSelection(); if(sel&&sel.rangeCount)window.__quickSavedRange=sel.getRangeAt(0).cloneRange()};
+ ed.addEventListener("keyup",keep); ed.addEventListener("mouseup",keep); ed.addEventListener("focus",keep);
+ host.querySelectorAll(".word-toolbar button").forEach(btn=>{
+   btn.addEventListener("mousedown",e=>e.preventDefault());
+   btn.addEventListener("click",()=>{ed.focus(); const cmd=btn.dataset.cmd; if(cmd==="removeFormat")document.execCommand("removeFormat",false); else document.execCommand(cmd,false,null); keep()});
+ });
+ host.querySelector("#qe-font").addEventListener("change",e=>{ed.focus();document.execCommand("fontName",false,e.target.value);keep()});
+ host.querySelector("#qe-size").addEventListener("change",e=>{ed.focus();document.execCommand("fontSize",false,"7");ed.querySelectorAll('font[size="7"]').forEach(x=>{x.removeAttribute("size");x.style.fontSize=e.target.value});keep()});
+ host.querySelector("#qe-color").addEventListener("input",e=>{ed.focus();document.execCommand("foreColor",false,e.target.value);keep()});
+ host.querySelector("#qe-highlight").addEventListener("input",e=>{ed.focus();if(document.queryCommandSupported("hiliteColor"))document.execCommand("hiliteColor",false,e.target.value);else document.execCommand("backColor",false,e.target.value);keep()});
+}
+function openQuickEditor(){
+ const el=document.querySelector(".admin-element-selected");
+ if(!el){startQuickEditMode();return}
+ if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
+ const id=el.id, all=getQuickStyles(), s=all[id]||{}, texts=getQuickTexts(), htmlAll=getQuickHtml(), isLogo=id==="site-logo";
+ const tw=document.getElementById("quick-editor-text-wrap");
+ if(tw)tw.style.display="none";
+ const wrap=document.getElementById("quick-editor-fields");
+ quickEditorEnsureToolbar();
+ const ed=document.getElementById("quick-editor-rich");
+ if(ed)ed.innerHTML=htmlAll[id]!=null?htmlAll[id]:((texts[id]&&texts[id].trim())?texts[id]:(el.innerHTML||el.textContent||"").trim());
+ const w=document.getElementById("qe-width"),h=document.getElementById("qe-height"),bg=document.getElementById("qe-bg");
+ if(w)w.value=s.width||""; if(h)h.value=s.height||"";
+ if(bg){const cv=s.backgroundColor||"#ffffff"; bg.value=/^#[0-9a-f]{6}$/i.test(cv)?cv:"#ffffff"}
+ if(isLogo){if(ed)ed.innerHTML=""; if(w)w.value=s.width||el.style.width||""; if(h)h.value=s.height||el.style.height||""}
+ document.getElementById("quick-editor-name").innerText="নির্বাচিত: "+quickTargetName(id);
+ const modal=document.getElementById("quick-editor-modal"); modal.classList.add("show");
+ setTimeout(()=>{if(ed&&!isLogo)ed.focus()},50);
+}
 function closeQuickEditor(){document.getElementById("quick-editor-modal").classList.remove("show")}
-function saveQuickEditor(){const el=document.querySelector(".admin-element-selected");if(!el||!el.id)return;const all=getQuickStyles(),texts=getQuickTexts();const s=all[el.id]||{};const ta=document.getElementById("quick-editor-text");if(el.id!=="site-logo"&&ta){const v=ta.value.trim();if(v){texts[el.id]=v;el.textContent=v}else delete texts[el.id]}document.querySelectorAll("#quick-editor-fields [data-q]").forEach(x=>{let v=x.value.trim();if(v===""){delete s[x.dataset.q];return}if(["fontSize","width","height"].includes(x.dataset.q)&&/^\d+(\.\d+)?$/.test(v))v+="px";s[x.dataset.q]=v});all[el.id]=s;localStorage.setItem("quick_element_styles",JSON.stringify(all));localStorage.setItem("quick_element_texts",JSON.stringify(texts));applyQuickStyles();applyQuickTexts();closeQuickEditor();alert("✅ নির্বাচিত অংশের পরিবর্তন সেভ হয়েছে।")}
+function saveQuickEditor(){
+ const el=document.querySelector(".admin-element-selected"); if(!el)return;
+ if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
+ const id=el.id, all=getQuickStyles(), texts=getQuickTexts(), htmlAll=getQuickHtml(), s=all[id]||{};
+ const ed=document.getElementById("quick-editor-rich");
+ if(id!=="site-logo"&&ed){htmlAll[id]=ed.innerHTML; texts[id]=ed.innerText; el.innerHTML=ed.innerHTML}
+ const w=document.getElementById("qe-width"),h=document.getElementById("qe-height"),bg=document.getElementById("qe-bg");
+ if(w&&w.value.trim())s.width=/^\d+(\.\d+)?$/.test(w.value.trim())?w.value.trim()+"px":w.value.trim(); else delete s.width;
+ if(h&&h.value.trim())s.height=/^\d+(\.\d+)?$/.test(h.value.trim())?h.value.trim()+"px":h.value.trim(); else delete s.height;
+ if(bg&&bg.value)s.backgroundColor=bg.value;
+ all[id]=s;
+ localStorage.setItem("quick_element_styles",JSON.stringify(all));
+ localStorage.setItem("quick_element_texts",JSON.stringify(texts));
+ localStorage.setItem("quick_element_html",JSON.stringify(htmlAll));
+ applyQuickStyles(); applyQuickTexts(); closeQuickEditor();
+ alert("✅ নির্বাচিত অংশের পরিবর্তন সেভ হয়েছে।");
+}
 function initElementSelection(){
  if(sessionStorage.getItem("logged")!=="1")return;
- document.querySelectorAll("#dashboard-page .top,#dashboard-page .ticker,#dashboard-page .tools").forEach(el=>el.classList.add("admin-selectable"));
  if(document.body.dataset.bigBoxSelectionInit==="1")return;
  document.body.dataset.bigBoxSelectionInit="1";
  document.addEventListener("click",ev=>{
-  if(sessionStorage.getItem("logged")!=="1")return;
-  const target=ev.target.closest("#dashboard-page #site-title,#dashboard-page #site-subtitle,#dashboard-page #marquee-text,#dashboard-page #public-links-title,#dashboard-page #public-box1-btn,#dashboard-page #public-box2-btn,#dashboard-page #site-logo,#dashboard-page #top-header,#dashboard-page #notice-ticker,#dashboard-page #public-links-entry");
+  if(sessionStorage.getItem("logged")!=="1"||document.body.dataset.quickEditMode!=="1")return;
+  if(ev.target.closest("#quick-editor-modal,#settings-modal,#quick-edit-hint"))return;
+  const target=ev.target.closest("#dashboard-page *:not(script):not(style),#links-page *:not(script):not(style),#website-page *:not(script):not(style),#contact-page *:not(script):not(style)");
   if(!target)return;
-  if(document.body.dataset.quickEditMode==="1"){ev.preventDefault();ev.stopImmediatePropagation();document.body.dataset.quickEditMode="";document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));target.classList.add("admin-element-selected");const h=document.getElementById("quick-edit-hint");if(h)h.style.display="none";openQuickEditor();return}
+  if(["INPUT","TEXTAREA","SELECT","BUTTON"].includes(target.tagName)&&!target.classList.contains("tool")&&!target.classList.contains("btn"))return;
+  ev.preventDefault();ev.stopImmediatePropagation();
+  document.body.dataset.quickEditMode="";
+  document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+  target.classList.add("admin-element-selected");
+  const h=document.getElementById("quick-edit-hint");if(h)h.style.display="none";
+  openQuickEditor();
  },true);
 }
 function initLogoDrag(){ return; }
