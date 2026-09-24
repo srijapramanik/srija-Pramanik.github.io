@@ -214,6 +214,24 @@
   #dashboard-page>.dash>.admin-only{padding:9px!important}
 }
 </style>
+<style id="fix-top-box-height">
+/* Keep the top navigation outer box height comfortable while keeping buttons compact */
+#dashboard-page>.dash>#top-mini-nav{
+  height:76px!important;
+  min-height:76px!important;
+  padding:6px 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px){
+ #dashboard-page>.dash>#top-mini-nav{
+  height:76px!important;
+  min-height:76px!important;
+  padding:5px!important;
+ }
+}
+</style>
 </head>
 <body>
 <div id="links-page" class="page">
