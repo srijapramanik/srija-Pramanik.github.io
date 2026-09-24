@@ -557,6 +557,8 @@ function initElementSelection(){
    if(t.closest(".top-nav-btn.setting"))return;
    const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page||t===page)return;
    if(t.closest("input,textarea,select"))return;
+   /* Allow normal website/link clicks to work; selection is for non-link elements. */
+   if(t.closest("a[href]"))return;
    ev.preventDefault();ev.stopPropagation();
    document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
    let target=t;
