@@ -562,7 +562,7 @@ function initElementSelection(){
    if(t.closest("input,textarea,select"))return;
    /* Click any truly blank page area to clear the current selection. */
    const clickedBox=t.closest(".drag-box");
-   const clickedInteractive=t.closest("button,a,input,textarea,select,label,[role="button"]");
+   const clickedInteractive=t.closest('button,a,input,textarea,select,label,[role="button"]');
    if(!clickedBox && !clickedInteractive){
       document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
       return;
