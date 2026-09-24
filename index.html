@@ -571,19 +571,17 @@ function initElementSelection(){
 function initBoxDrag(){
  if(document.body.dataset.boxDragInit==="1")return;
  document.body.dataset.boxDragInit="1";
- const key=()=>location.hash||"dashboard";
  const mark=()=>{
    const d=document.querySelector("#dashboard-page>.dash");
    if(d)d.querySelectorAll(":scope>#top-mini-nav,:scope>.top,:scope>.ticker,:scope>#public-links-entry,:scope>.admin-only").forEach(x=>{x.classList.add("drag-box");if(!x.id)x.id="drag-"+Math.random().toString(36).slice(2,9)});
    document.querySelectorAll("#site-grid .site-card").forEach(x=>{x.classList.add("drag-box");if(!x.id)x.id="drag-"+Math.random().toString(36).slice(2,9)});
  };
- const load=()=>{
-   try{
-     const all=JSON.parse(localStorage.getItem("quick_element_styles")||"{}");
-     document.querySelectorAll(".drag-box").forEach(el=>{if(all[el.id]&&all[el.id].transform)el.style.transform=all[el.id].transform});
-   }catch(e){}
+ const getPos=el=>{
+   const m=getComputedStyle(el).transform;
+   if(!m||m==="none")return {x:0,y:0};
+   try{const v=new DOMMatrix(m);return {x:v.m41,y:v.m42}}catch(e){return {x:0,y:0}};
  };
- const save=(el)=>{
+ const save=el=>{
    try{
      const all=getQuickStyles(),id=el.id;
      if(!id)return;
@@ -592,25 +590,28 @@ function initBoxDrag(){
      localStorage.setItem("quick_element_styles",JSON.stringify(all));
    }catch(e){}
  };
- mark(); load();
+ const applySaved=()=>{
+   try{
+     const all=getQuickStyles();
+     document.querySelectorAll(".drag-box").forEach(el=>{if(all[el.id]&&all[el.id].transform)el.style.transform=all[el.id].transform});
+   }catch(e){}
+ };
+ mark();applySaved();
  let drag=null;
+ const selectBox=el=>{
+   document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
+   el.classList.add("admin-element-selected");
+ };
  document.addEventListener("pointerdown",ev=>{
    if(sessionStorage.getItem("logged")!=="1")return;
    const t=ev.target instanceof Element?ev.target:null;if(!t)return;
-   if(t.closest("button,a,input,textarea,select,label,.actions"))return;
    const el=t.closest(".drag-box");if(!el)return;
-   if(!el.id)el.id="drag-"+Math.random().toString(36).slice(2,9);
-   const cs=getComputedStyle(el), m=cs.transform;
-   let baseX=0,baseY=0;
-   if(m&&m!=="none"){
-     const v=new DOMMatrix(m);baseX=v.m41;baseY=v.m42;
-   }
+   if(t.closest("#quick-editor-modal,#settings-modal,#manage-modal,#modal,#quick-edit-hint"))return;
+   selectBox(el);
+   const p=getPos(el);
    el.style.touchAction="none";
    el.style.cursor="grabbing";
-   el.setPointerCapture?.(ev.pointerId);
-   document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-   el.classList.add("admin-element-selected");
-   drag={el,startX:ev.clientX,startY:ev.clientY,baseX,baseY,moved:false,pointerId:ev.pointerId};
+   drag={el,startX:ev.clientX,startY:ev.clientY,baseX:p.x,baseY:p.y,moved:false,pointerId:ev.pointerId};
  });
  document.addEventListener("pointermove",ev=>{
    if(!drag)return;
@@ -629,6 +630,19 @@ function initBoxDrag(){
  document.addEventListener("pointercancel",()=>{
    if(drag)drag.el.style.cursor="";
    drag=null;
+ });
+ document.addEventListener("keydown",ev=>{
+   if(sessionStorage.getItem("logged")!=="1")return;
+   if(ev.ctrlKey||ev.altKey||ev.metaKey)return;
+   if(["INPUT","TEXTAREA","SELECT"].includes((ev.target&&ev.target.tagName)||""))return;
+   const el=document.querySelector(".admin-element-selected.drag-box");
+   if(!el)return;
+   const arrows={ArrowUp:[0,-10],ArrowDown:[0,10],ArrowLeft:[-10,0],ArrowRight:[10,0]};
+   const d=arrows[ev.key];if(!d)return;
+   const p=getPos(el);
+   el.style.transform="translate("+Math.round(p.x+d[0])+"px,"+Math.round(p.y+d[1])+"px)";
+   save(el);
+   ev.preventDefault();
  });
 }function initLogoDrag(){ return; }
 function editBoxTitle(box){openSettings()}async function resetAll(){if(!confirm("ডিফল্ট অবস্থায় ফিরে যেতে চান?"))return;localStorage.removeItem("quick_element_styles");localStorage.removeItem("quick_element_texts");localStorage.removeItem("quick_element_html");const previous=localStorage.getItem("site_settings_before_edit")||localStorage.getItem("site_settings_previous");if(!previous){alert("আগের সংরক্ষিত অবস্থার কোনো কপি নেই।");return}try{const prev=JSON.parse(previous);localStorage.setItem("site_settings",JSON.stringify(prev));remoteData.settings=prev;applySettings();try{localStorage.setItem("site_settings_before_edit",JSON.stringify(prev))}catch(e){}if(supabaseClient){const {error}=await supabaseClient.from("site_data").upsert({key:"settings",value:prev},{onConflict:"key"});if(error)console.warn("Supabase restore failed:",error.message)}alert("↩️ আগের সংরক্ষিত অবস্থায় ফিরে গেছে।");showDashboard()}catch(e){console.warn("Restore failed:",e);alert("আগের অবস্থায় ফেরানো যায়নি।")}}async function loadRemoteData(){if(!supabaseClient){console.warn("Supabase unavailable; using local data.");return}const {data,error}=await supabaseClient.from("site_data").select("key,value");if(error){console.warn("Remote data not available yet:",error.message);return}data.forEach(r=>{remoteData[r.key]=r.value;if(r.key==="settings"){if(!localStorage.getItem("site_settings"))localStorage.setItem("site_settings",JSON.stringify(r.value))}if(r.key==="box1_links"||r.key==="box2_links"){if(!localStorage.getItem(r.key))localStorage.setItem(r.key,JSON.stringify(r.value))}});applySettings()}async function init(){applySettings();applyQuickStyles();applyQuickTexts();await loadRemoteData();applyQuickStyles();applyQuickTexts();sessionStorage.setItem("logged","1");initBoxDrag();if(sessionStorage.getItem("returnToLinks")==="1"){const b=sessionStorage.getItem("returnToLinksBox")||"box1";sessionStorage.removeItem("returnToLinks");sessionStorage.removeItem("returnToLinksBox");addLink(b)}else{showDashboard()}initElementSelection()}init();
