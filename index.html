@@ -557,8 +557,9 @@ function initElementSelection(){
    if(t.closest(".top-nav-btn.setting"))return;
    const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page||t===page)return;
    if(t.closest("input,textarea,select"))return;
-   /* Allow normal website/link clicks to work; selection is for non-link elements. */
-   if(t.closest("#links-page .site-card")){ev.preventDefault();ev.stopPropagation();document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));t.closest(".site-card").classList.add("admin-element-selected");return;} if(t.closest("a[href],#public-box1-btn,#public-box2-btn,#links-page .link-page-head .cancel,.admin-only button"))return;
+   /* In admin mode, public link buttons are selectable instead of navigating. */
+   if(t.closest("#public-box1-btn,#public-box2-btn")){ev.preventDefault();ev.stopPropagation();document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));t.closest("#public-box1-btn,#public-box2-btn").classList.add("admin-element-selected");return;}
+   if(t.closest("#links-page .site-card")){ev.preventDefault();ev.stopPropagation();document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));t.closest(".site-card").classList.add("admin-element-selected");return;} if(t.closest("a[href],#links-page .link-page-head .cancel,.admin-only button"))return;
    ev.preventDefault();ev.stopPropagation();
    document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
    let target=t;
