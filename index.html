@@ -459,6 +459,7 @@ function quickEditorEnsureToolbar(){
    '<label>চওড়া <span class="qe-size-step"><button type="button" id="qe-width-minus">−</button><input id="qe-width" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-width-plus">+</button></span></label>'+
    '<label>উচ্চতা <span class="qe-size-step"><button type="button" id="qe-height-minus">−</button><input id="qe-height" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-height-plus">+</button></span></label>'+
    '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label>'+
+   '<button type="button" class="btn delete" id="qe-hide" style="margin-top:8px">🗑️ এই অংশটি মুছে দিন</button>'+
    '</div>';
  const ed=document.getElementById("quick-editor-rich");
  const keep=()=>{const sel=window.getSelection(); if(sel&&sel.rangeCount)window.__quickSavedRange=sel.getRangeAt(0).cloneRange()};
@@ -471,6 +472,7 @@ function quickEditorEnsureToolbar(){
  host.querySelector("#qe-size").addEventListener("change",e=>{ed.focus();document.execCommand("fontSize",false,"7");ed.querySelectorAll('font[size="7"]').forEach(x=>{x.removeAttribute("size");x.style.fontSize=e.target.value});keep()});
  host.querySelector("#qe-color").addEventListener("input",e=>{ed.focus();document.execCommand("foreColor",false,e.target.value);keep()});
  host.querySelector("#qe-highlight").addEventListener("input",e=>{ed.focus();if(document.queryCommandSupported("hiliteColor"))document.execCommand("hiliteColor",false,e.target.value);else document.execCommand("backColor",false,e.target.value);keep()});
+ host.querySelector("#qe-hide").addEventListener("click",()=>{const target=document.querySelector(".admin-element-selected");if(!target)return;if(!confirm("এই নির্বাচিত অংশটি মুছে/লুকিয়ে দিতে চান? ডিফল্টে ফেরত দিলে আবার ফিরে আসবে।"))return;if(!target.id)target.id="quick-"+Math.random().toString(36).slice(2,10);const all=getQuickStyles();all[target.id]=all[target.id]||{};all[target.id].display="none";localStorage.setItem("quick_element_styles",JSON.stringify(all));target.style.display="none";closeQuickEditor();target.classList.remove("admin-element-selected");alert("🗑️ নির্বাচিত অংশটি লুকিয়ে দেওয়া হয়েছে। ডিফল্টে ফেরত দিলে ফিরে আসবে।")});
  const step=(id,delta)=>{
    const input=host.querySelector("#"+id); if(!input)return;
    let n=parseFloat(input.value);
