@@ -558,7 +558,7 @@ function initElementSelection(){
    const t=ev.target instanceof Element?ev.target:null;if(!t)return;
    if(t.closest("#quick-editor-modal,#settings-modal,#manage-modal,#modal,#quick-edit-hint"))return;
    if(t.closest(".top-nav-btn.setting"))return;
-   const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page||t===page)return;
+   const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page)return;
    if(t.closest("input,textarea,select"))return;
    /* Click any truly blank page area to clear the current selection. */
    const clickedBox=t.closest(".drag-box");
