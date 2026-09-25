@@ -417,7 +417,7 @@ function previewSettings(){
 function closeSettings(){$("settings-modal").classList.remove("show")}function saveSettings(){const s={...getSettings()};document.querySelectorAll("[data-setting]").forEach(i=>{if(i.dataset.setting!=="logoUrl")s[i.dataset.setting]=i.value});const lf=document.querySelector("[data-setting='logoUrl']");if(lf&&lf.dataset.imageData)s.logoUrl=lf.dataset.imageData;const currentSaved=localStorage.getItem("site_settings");const lastSaved=localStorage.getItem("site_settings_last_saved");try{if(lastSaved){localStorage.setItem("site_settings_previous",lastSaved)}else if(currentSaved){localStorage.setItem("site_settings_previous",currentSaved)}localStorage.setItem("site_settings_last_saved",JSON.stringify(s))}catch(e){console.warn("Saved-state backup failed:",e)}remoteData.settings=s;try{localStorage.setItem("site_settings",JSON.stringify(s))}catch(e){console.warn("Local save failed:",e)}applySettings();if($("links-page").classList.contains("active-page"))addLink(currentBox);closeSettings();alert("✅ লেখা ও সব পরিবর্তন সেভ হয়েছে।");if(supabaseClient){supabaseClient.from("site_data").upsert({key:"settings",value:s},{onConflict:"key"}).then(({error})=>{if(error)console.warn("Supabase save failed:",error.message)}).catch(e=>console.warn("Supabase save skipped:",e))}}
 function initTextEditing(){ return; }
 function getQuickStyles(){try{return JSON.parse(localStorage.getItem("quick_element_styles")||"{}")}catch(e){return {}}}
-function applyQuickStyles(){const all=getQuickStyles();Object.keys(all).forEach(id=>{const el=document.getElementById(id);if(!el)return;const s=all[id]||{};Object.keys(s).forEach(k=>{if(k==="quickMarquee"||k==="quickMarqueeSpeed"||k==="quickMarqueeDirection"||k==="quickMarqueeHoverPause")return;if(s[k]!==""&&s[k]!=null)el.style[k]=s[k]});el.classList.toggle("quick-marquee-hover-pause",!!s.quickMarqueeHoverPause)})}
+function applyQuickStyles(){const all=getQuickStyles();Object.keys(all).forEach(id=>{const el=document.getElementById(id);if(!el)return;const s=all[id]||{};Object.keys(s).forEach(k=>{if(k==="quickMarquee"||k==="quickMarqueeSpeed"||k==="quickMarqueeDirection"||k==="quickMarqueeHoverPause"||k==="quickMarqueeX"||k==="quickMarqueeY")return;if(s[k]!==""&&s[k]!=null)el.style[k]=s[k]});el.classList.toggle("quick-marquee-hover-pause",!!s.quickMarqueeHoverPause);if(s.quickMarquee){el.classList.add("drag-box");el.style.position=el.style.position||"relative";el.style.left=(Number(s.quickMarqueeX)||0)+"px";el.style.top=(Number(s.quickMarqueeY)||0)+"px"}})}
 function getQuickTexts(){try{return JSON.parse(localStorage.getItem("quick_element_texts")||"{}")}catch(e){return {}}}
 function getQuickHtml(){try{return JSON.parse(localStorage.getItem("quick_element_html")||"{}")}catch(e){return {}}}
 function applyQuickTexts(){
@@ -629,6 +629,7 @@ function initBoxDrag(){
    document.querySelectorAll("#site-grid .site-card").forEach(x=>{x.classList.add("drag-box");if(!x.id)x.id="drag-"+Math.random().toString(36).slice(2,9)});
  };
  const getPos=el=>{
+   if(el.style.animation||el.classList.contains("quickUserMarquee")){const cs=getComputedStyle(el);return {x:parseFloat(cs.left)||0,y:parseFloat(cs.top)||0}}
    const m=getComputedStyle(el).transform;
    if(!m||m==="none")return {x:0,y:0};
    try{const v=new DOMMatrix(m);return {x:v.m41,y:v.m42}}catch(e){return {x:0,y:0}};
@@ -638,7 +639,7 @@ function initBoxDrag(){
      const all=getQuickStyles(),id=el.id;
      if(!id)return;
      all[id]=all[id]||{};
-     all[id].transform=el.style.transform||"";
+     if(all[id].quickMarquee){all[id].quickMarqueeX=parseFloat(el.style.left)||0;all[id].quickMarqueeY=parseFloat(el.style.top)||0}else{all[id].transform=el.style.transform||""}
      localStorage.setItem("quick_element_styles",JSON.stringify(all));
    }catch(e){}
  };
@@ -670,7 +671,7 @@ function initBoxDrag(){
    const dx=ev.clientX-drag.startX,dy=ev.clientY-drag.startY;
    if(Math.abs(dx)+Math.abs(dy)<4)return;
    drag.moved=true;
-   drag.el.style.transform="translate("+Math.round(drag.baseX+dx)+"px,"+Math.round(drag.baseY+dy)+"px)";
+   if(drag.el.style.animation||drag.el.classList.contains("quickUserMarquee")){drag.el.style.left=Math.round(drag.baseX+dx)+"px";drag.el.style.top=Math.round(drag.baseY+dy)+"px"}else{drag.el.style.transform="translate("+Math.round(drag.baseX+dx)+"px,"+Math.round(drag.baseY+dy)+"px)"}
    ev.preventDefault();
  });
  document.addEventListener("pointerup",()=>{
@@ -692,7 +693,7 @@ function initBoxDrag(){
    const arrows={ArrowUp:[0,-10],ArrowDown:[0,10],ArrowLeft:[-10,0],ArrowRight:[10,0]};
    const d=arrows[ev.key];if(!d)return;
    const p=getPos(el);
-   el.style.transform="translate("+Math.round(p.x+d[0])+"px,"+Math.round(p.y+d[1])+"px)";
+   if(el.style.animation||el.classList.contains("quickUserMarquee")){el.style.left=Math.round(p.x+d[0])+"px";el.style.top=Math.round(p.y+d[1])+"px"}else{el.style.transform="translate("+Math.round(p.x+d[0])+"px,"+Math.round(p.y+d[1])+"px)"}
    save(el);
    ev.preventDefault();
  });
