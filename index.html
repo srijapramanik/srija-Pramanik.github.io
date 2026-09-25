@@ -459,9 +459,13 @@ function quickEditorEnsureToolbar(){
    '<label>চওড়া <span class="qe-size-step"><button type="button" id="qe-width-minus">−</button><input id="qe-width" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-width-plus">+</button></span></label>'+
    '<label>উচ্চতা <span class="qe-size-step"><button type="button" id="qe-height-minus">−</button><input id="qe-height" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-height-plus">+</button></span></label>'+
    '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label>'+
+   '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn tool" id="qe-copy">📋 কপি</button><button type="button" class="btn tool" id="qe-paste">📥 পেস্ট</button></div>'+
    '<button type="button" class="btn delete" id="qe-hide" style="margin-top:8px">🗑️ এই অংশটি মুছে দিন</button>'+
    '</div>';
  const ed=document.getElementById("quick-editor-rich");
+ const copyBtn=host.querySelector("#qe-copy"),pasteBtn=host.querySelector("#qe-paste");
+ if(copyBtn)copyBtn.onclick=copySelectedElement;
+ if(pasteBtn)pasteBtn.onclick=pasteCopiedElement;
  const keep=()=>{const sel=window.getSelection(); if(sel&&sel.rangeCount)window.__quickSavedRange=sel.getRangeAt(0).cloneRange()};
  ed.addEventListener("keyup",keep); ed.addEventListener("mouseup",keep); ed.addEventListener("focus",keep);
  host.querySelectorAll(".word-toolbar button").forEach(btn=>{
@@ -531,6 +535,29 @@ function openQuickEditor(){
 }
 function closeQuickEditor(){
  const m=document.getElementById("quick-editor-modal");if(m)m.classList.remove("show");
+}
+function copySelectedElement(){
+ const el=document.querySelector(".admin-element-selected");
+ if(!el){alert("আগে একটি অংশ নির্বাচন করুন।");return}
+ if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
+ const styles=getQuickStyles(),texts=getQuickTexts(),html=getQuickHtml(),s=styles[el.id]||{};
+ const clip={styles:{...s},text:texts[el.id]!=null?texts[el.id]:null,html:html[el.id]!=null?html[el.id]:null,inline:el.getAttribute("style")||"",className:el.className};
+ localStorage.setItem("quick_element_clipboard",JSON.stringify(clip));
+ alert("📋 নির্বাচিত অংশটি কপি হয়েছে। অন্য অংশ নির্বাচন করে ‘পেস্ট’ করুন।");
+}
+function pasteCopiedElement(){
+ const el=document.querySelector(".admin-element-selected"),raw=localStorage.getItem("quick_element_clipboard");
+ if(!el){alert("যে অংশে পেস্ট করবেন সেটি আগে নির্বাচন করুন।");return}
+ if(!raw){alert("আগে একটি অংশ কপি করুন।");return}
+ try{
+   const clip=JSON.parse(raw);if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
+   const styles=getQuickStyles(),texts=getQuickTexts(),html=getQuickHtml();
+   styles[el.id]={...(clip.styles||{})};if(clip.text!=null)texts[el.id]=clip.text;if(clip.html!=null)html[el.id]=clip.html;
+   if(clip.inline!=null)el.setAttribute("style",clip.inline);
+   localStorage.setItem("quick_element_styles",JSON.stringify(styles));localStorage.setItem("quick_element_texts",JSON.stringify(texts));localStorage.setItem("quick_element_html",JSON.stringify(html));
+   applyQuickStyles();applyQuickTexts();el.classList.add("admin-element-selected");
+   alert("📥 কপি করা লেখা ও ডিজাইন এই অংশে পেস্ট হয়েছে।");
+ }catch(e){alert("পেস্ট করা যায়নি। আবার কপি করে চেষ্টা করুন।")}
 }
 function saveQuickEditor(){
  const el=document.querySelector(".admin-element-selected");if(!el)return;
