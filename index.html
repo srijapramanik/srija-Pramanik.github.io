@@ -541,7 +541,7 @@ function copySelectedElement(){
  if(!el){alert("আগে একটি অংশ নির্বাচন করুন।");return}
  if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
  const styles=getQuickStyles(),texts=getQuickTexts(),html=getQuickHtml(),s=styles[el.id]||{};
- const img=el.tagName==="IMG"?{src:el.getAttribute("src")||"",alt:el.getAttribute("alt")||""}:null;\n const clip={styles:{...s},text:texts[el.id]!=null?texts[el.id]:null,html:html[el.id]!=null?html[el.id]:null,inline:el.getAttribute("style")||"",className:el.className,image:img};
+ const img=el.tagName==="IMG"?{src:el.getAttribute("src")||"",alt:el.getAttribute("alt")||""}:null;\n const link=el.tagName==="A"?{href:el.getAttribute("href")||"",target:el.getAttribute("target")||""}:null;\n const clip={styles:{...s},text:texts[el.id]!=null?texts[el.id]:null,html:html[el.id]!=null?html[el.id]:null,inline:el.getAttribute("style")||"",className:el.className,image:img,link:link};
  localStorage.setItem("quick_element_clipboard",JSON.stringify(clip));
  alert("📋 নির্বাচিত অংশটি কপি হয়েছে। অন্য অংশ নির্বাচন করে ‘পেস্ট’ করুন।");
 }
@@ -553,7 +553,7 @@ function pasteCopiedElement(){
    const clip=JSON.parse(raw);if(!el.id)el.id="quick-"+Math.random().toString(36).slice(2,10);
    const styles=getQuickStyles(),texts=getQuickTexts(),html=getQuickHtml();
    styles[el.id]={...(clip.styles||{})};if(clip.text!=null)texts[el.id]=clip.text;if(clip.html!=null)html[el.id]=clip.html;
-   if(clip.inline!=null)el.setAttribute("style",clip.inline);\n   if(clip.image&&el.tagName==="IMG"){el.setAttribute("src",clip.image.src||"");el.setAttribute("alt",clip.image.alt||"");}
+   if(clip.inline!=null)el.setAttribute("style",clip.inline);\n   if(clip.image&&el.tagName==="IMG"){el.setAttribute("src",clip.image.src||"");el.setAttribute("alt",clip.image.alt||"");}\n   if(clip.link&&el.tagName==="A"){el.setAttribute("href",clip.link.href||"");if(clip.link.target)el.setAttribute("target",clip.link.target);else el.removeAttribute("target");}
    localStorage.setItem("quick_element_styles",JSON.stringify(styles));localStorage.setItem("quick_element_texts",JSON.stringify(texts));localStorage.setItem("quick_element_html",JSON.stringify(html));
    applyQuickStyles();applyQuickTexts();el.classList.add("admin-element-selected");
    alert("📥 কপি করা লেখা ও ডিজাইন এই অংশে পেস্ট হয়েছে।");
