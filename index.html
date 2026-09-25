@@ -461,7 +461,7 @@ function quickEditorEnsureToolbar(){
    '<div class="quick-box-controls">'+
    '<label>চওড়া <span class="qe-size-step"><button type="button" id="qe-width-minus">−</button><input id="qe-width" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-width-plus">+</button></span></label>'+
    '<label>উচ্চতা <span class="qe-size-step"><button type="button" id="qe-height-minus">−</button><input id="qe-height" type="text" inputmode="numeric" placeholder="auto"><button type="button" id="qe-height-plus">+</button></span></label>'+
-   '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label><label>বক্সের ছবি <input id="qe-bg-image" type="file" accept="image/*"></label><label style="display:flex;align-items:center;gap:6px">স্ক্রলিং <input id="qe-scroll" type="checkbox"></label>'+
+   '<label>বক্সের রং <input id="qe-bg" type="color" value="#ffffff"></label><label>বক্সের ছবি <input id="qe-bg-image" type="file" accept="image/*"></label><button type="button" class="btn cancel" id="qe-bg-image-clear">🖼️ ছবি সরান</button><label style="display:none"></label></label><label style="display:flex;align-items:center;gap:6px">স্ক্রলিং <input id="qe-scroll" type="checkbox"></label>'+
    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn tool" id="qe-copy">📋 কপি</button><button type="button" class="btn tool" id="qe-paste">📥 পেস্ট</button></div>'+
    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn delete" id="qe-hide">🗑️ এই অংশটি মুছে দিন</button><button type="button" class="btn tool" id="qe-restore">♻️ লুকানো অংশ ফিরিয়ে আনুন</button><button type="button" class="btn cancel" id="qe-undo-hide">↩️ শেষ Hide বাতিল</button></div>'+
    '</div>';
@@ -538,7 +538,7 @@ function openQuickEditor(){
    const cv=s.backgroundColor||"";
    bg.value=/^#[0-9a-f]{6}$/i.test(cv)?cv:"#ffffff";
  }
- const scroll=document.getElementById("qe-scroll"); if(scroll)scroll.checked=!!s.quickMarquee;
+ const bgImageClear=document.getElementById("qe-bg-image-clear");if(bgImageClear){bgImageClear.onclick=()=>{const target=document.querySelector(".admin-element-selected");if(!target)return;if(!target.id)target.id="quick-"+Math.random().toString(36).slice(2,10);const all=getQuickStyles(),ss=all[target.id]||{};delete ss.backgroundImage;delete ss.backgroundSize;delete ss.backgroundPosition;all[target.id]=ss;localStorage.setItem("quick_element_styles",JSON.stringify(all));target.style.backgroundImage="";target.style.backgroundSize="";target.style.backgroundPosition="";}}\n  const scroll=document.getElementById("qe-scroll"); if(scroll)scroll.checked=!!s.quickMarquee;
  const name=document.getElementById("quick-editor-name");
  if(name)name.innerText="নির্বাচিত: "+quickTargetName(id);
  const modal=document.getElementById("quick-editor-modal");
