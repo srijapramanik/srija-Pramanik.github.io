@@ -384,7 +384,7 @@ function field(k,l,s){
  if(ranges[k]){let z=ranges[k];return "<div class='setting-row'><label>"+esc(l)+"</label><div class='range-row'><input type='range' data-setting='"+k+"' min='"+z[0]+"' max='"+z[1]+"' value='"+esc(v)+"'><span class='range-value' data-value='"+k+"'>"+esc(v)+"</span></div></div>"}
  return "<div class='setting-row'><label>"+esc(l)+"</label><input data-setting='"+k+"' value='"+esc(v)+"'></div>";
 }
-function toggleSettingsSection(head){const body=head.nextElementSibling;if(!body)return;const open=body.style.display!=="none";body.style.display=open?"none":"block";const sp=head.querySelector("span");if(sp)sp.textContent=open?"＋":"−"}
+function toggleSettingsSection(head){const body=head.nextElementSibling;if(!body)return;const open=body.style.display!=="none";document.querySelectorAll("#settings-fields .settings-section .settings-body").forEach(b=>b.style.display="none");document.querySelectorAll("#settings-fields .settings-section h4 span").forEach(s=>s.textContent="＋");if(!open){body.style.display="block";const sp=head.querySelector("span");if(sp)sp.textContent="−"}}
 function openSettings(){
  const s=getSettings();
  try{localStorage.setItem("site_settings_before_edit",JSON.stringify(s))}catch(e){console.warn("Before-edit backup failed:",e)}
