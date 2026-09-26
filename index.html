@@ -380,7 +380,7 @@ function restoreLastCustomBox(){try{let deleted=JSON.parse(localStorage.getItem(
   try{
     ["manage-modal","quick-editor-modal","settings-modal","modal"].forEach(id=>{
       const el=document.getElementById(id);
-      if(el){el.classList.remove("show");el.style.display="none";}
+      if(el){el.classList.remove("show");el.style.removeProperty("display");}
     });
   }catch(e){}
 }
