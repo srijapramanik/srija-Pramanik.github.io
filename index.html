@@ -429,7 +429,7 @@ function getQuickTexts(){try{return JSON.parse(localStorage.getItem("quick_eleme
 function getQuickHtml(){try{return JSON.parse(localStorage.getItem("quick_element_html")||"{}")}catch(e){return {}}}
 function applyQuickTexts(){
  const htmlAll=getQuickHtml(), textAll=getQuickTexts();
- const editableIds=new Set(["site-title","site-subtitle","marquee-text","public-links-title","public-box1-btn","public-box2-btn","settings-title","login-title","login-subtitle","login-hint","links-title","link-page-subtitle","contact-title","contact-brand","contact-name","contact-address","website-view-title","website-view-note","website-view-name","website-view-url","website-view-open"]);
+ const editableIds=new Set(["site-title","site-subtitle","notice-label","marquee-text","public-links-title","public-box1-btn","public-box2-btn","settings-title","login-title","login-subtitle","login-hint","links-title","link-page-subtitle","contact-title","contact-brand","contact-name","contact-address","website-view-title","website-view-note","website-view-name","website-view-url","website-view-open"]);
  editableIds.forEach(id=>{
    const el=document.getElementById(id);
    if(!el)return;
