@@ -646,7 +646,7 @@ function initElementSelection(){
    const clickedTickerPart=t.closest("#notice-label,#marquee-text");
    const clickedBox=clickedTickerPart?null:t.closest(".drag-box");
    const clickedInteractive=t.closest('button,a,input,textarea,select,label,[role="button"]');
-   if(!clickedBox && !clickedInteractive){
+   if(!clickedBox && !clickedInteractive && !clickedTickerPart){
       document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
       return;
    }
