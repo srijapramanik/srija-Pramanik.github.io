@@ -533,8 +533,8 @@ function openQuickEditor(){
  if(textMode){
   const fontSel=document.getElementById("qe-font"),sizeSel=document.getElementById("qe-size"),colorSel=document.getElementById("qe-color"),highlightSel=document.getElementById("qe-highlight");
   const cs=getComputedStyle(el),fontName=(cs.fontFamily||"").split(",")[0].replace(/[\\"]/g,"").trim(),fontSize=cs.fontSize||"";
-  if(fontSel)fontSel.value=[...fontSel.options].some(o=>o.value===fontName)?fontName:"";
-  if(sizeSel)sizeSel.value=[...sizeSel.options].some(o=>o.value===fontSize)?fontSize:"";
+  if(fontSel){if(fontName&&!([...fontSel.options].some(o=>o.value===fontName))){const o=document.createElement("option");o.value=fontName;o.textContent=fontName; o.dataset.dynamic="1";fontSel.appendChild(o)}fontSel.value=fontName||"";}
+  if(sizeSel){if(fontSize&&!([...sizeSel.options].some(o=>o.value===fontSize))){const o=document.createElement("option");o.value=fontSize;o.textContent=fontSize;o.dataset.dynamic="1";sizeSel.appendChild(o)}sizeSel.value=fontSize||"";}
   const toHex=v=>{const m=(v||"").match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/i);return m?"#"+[m[1],m[2],m[3]].map(n=>Number(n).toString(16).padStart(2,"0")).join(""):(/^#[0-9a-f]{6}$/i.test(v||"")?v:"");};
   if(colorSel){const hex=toHex(cs.color);colorSel.value=hex||"#000000";}
   if(highlightSel){const hex=toHex(cs.backgroundColor);highlightSel.value=hex||"#ffff00";}
