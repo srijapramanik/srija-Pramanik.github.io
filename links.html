@@ -33,7 +33,7 @@ function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
 function render(){
  const a=get(); section.innerHTML="";
  a.forEach((x,i)=>{const d=document.createElement("div");d.className="link-box";d.innerHTML='<img src="'+x.img+'" alt=""><h3>'+x.name+'</h3><a href="'+x.url+'" target="_blank" rel="noopener">ওয়েবসাইট খুলুন</a><div class="edit-actions admin-only"><button data-e="'+i+'">Edit</button><button data-d="'+i+'">Delete</button></div>';section.appendChild(d)});
- if(location.hash==="#admin")document.querySelectorAll(".admin-only").forEach(e=>e.style.display="block");
+ if(location.hash==="#admin"){document.querySelectorAll(".admin-only").forEach(e=>e.style.display="block");document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{const a=get();a.splice(+b.dataset.d,1);save(a);render()});document.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{const a=get(),x=a[+b.dataset.e];const n=prompt("ওয়েবসাইটের নাম",x.name),u=prompt("ওয়েবসাইটের লিংক",x.url);if(n!==null&&u!==null&&n.trim()&&u.trim()){x.name=n.trim();x.url=u.trim();save(a);render()}})}
 }
 function panel(){
  if(location.hash!=="#admin")return;
