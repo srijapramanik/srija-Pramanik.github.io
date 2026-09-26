@@ -16,6 +16,7 @@ nav a{color:#173b8f;text-decoration:none;margin:0 12px;font-weight:bold}
 .cards{max-width:1000px;margin:20px auto 45px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;padding:0 18px}
 .card{background:white;padding:25px;border-radius:14px;box-shadow:0 5px 20px #0001;text-align:center}.card h3{color:#173b8f}
 footer{text-align:center;background:#172033;color:white;padding:25px;line-height:1.7}
+ .notice{max-width:1000px;margin:20px auto 0;padding:14px 18px;background:#fff;border-radius:14px;box-shadow:0 5px 20px #0001;text-align:center;overflow:hidden}.notice-title{font-weight:bold;color:#173b8f;white-space:nowrap;display:inline-block;animation:srijaNotice 12s linear infinite}@keyframes srijaNotice{from{transform:translateX(100%)}to{transform:translateX(-100%)}}
 </style>
 
 <style id="admin-style">
@@ -24,6 +25,7 @@ footer{text-align:center;background:#172033;color:white;padding:25px;line-height
 <body>
 <header><h1>SRIJA COMMUNICATION</h1><p>আপনার ডিজিটাল পরিষেবার সহজ ঠিকানা</p></header>
 <nav><a href="#home">হোম</a><a href="#services">পরিষেবা</a><a href="links.html">প্রয়োজনীয় ওয়েবসাইট</a><a href="#contact">যোগাযোগ</a></nav>
+<section class="notice" id="notice"><div class="notice-title" id="noticeText">বিজ্ঞপ্তি / আপডেট</div></section>
 <section class="hero" id="home">
 <h2>স্বাগতম SRIJA COMMUNICATION-এ</h2>
 <p>অনলাইন ও ডিজিটাল পরিষেবা সংক্রান্ত কাজে আপনাকে সহজ ও দ্রুত সহায়তা দেওয়ার জন্য আমাদের এই ওয়েবসাইট।</p>
@@ -38,8 +40,9 @@ footer{text-align:center;background:#172033;color:white;padding:25px;line-height
 
 <script>
 (function(){
-const key="srija_first_page_styles";
+const key="srija_first_page_styles"; const noticeKey="srija_notice_settings";
 let selected=null;
+function applyNotice(){try{const n=JSON.parse(localStorage.getItem(noticeKey)||"{}");if(n.text)document.getElementById("noticeText").textContent=n.text;if(n.scroll==="off")document.getElementById("noticeText").style.animation="none"}catch(e){}}
 function applySaved(){
  try{
   const saved=JSON.parse(localStorage.getItem(key)||"{}");
@@ -51,7 +54,7 @@ function saveStyle(id,styles){
 }
 function admin(){
  if(location.hash!=="#admin")return;
- document.body.insertAdjacentHTML("beforeend",'<div class="admin-panel" id="adminPanel"><h3>সবকিছু পরিচালনা</h3><div class="admin-help">প্রথমে পেজের যে লেখা/বক্সটি পরিবর্তন করবেন সেটিতে ক্লিক করুন।</div><div id="selectedName">কিছু নির্বাচন করা হয়নি</div><label>Font Size</label><input id="fontSize" type="number" min="8" max="100" value="16"><label>Font Color</label><input id="fontColor" type="color" value="#172033"><label>Font Style</label><select id="fontFamily"><option value="Arial, Noto Sans Bengali, sans-serif">Arial / Bengali</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option></select><br><button id="applyBtn">নির্বাচিত অংশে প্রয়োগ</button><button id="closeBtn">সাধারণ সাইট</button></div>');
+ document.body.insertAdjacentHTML("beforeend",'<div class="admin-panel" id="adminPanel"><h3>সবকিছু পরিচালনা</h3><div class="admin-help">প্রথমে পেজের যে লেখা/বক্সটি পরিবর্তন করবেন সেটিতে ক্লিক করুন।</div><div id="selectedName">কিছু নির্বাচন করা হয়নি</div><label>Font Size</label><input id="fontSize" type="number" min="8" max="100" value="16"><label>Font Color</label><input id="fontColor" type="color" value="#172033"><label>Font Style</label><select id="fontFamily"><option value="Arial, Noto Sans Bengali, sans-serif">Arial / Bengali</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option></select><br><label>বিজ্ঞপ্তি / আপডেট</label><input id="noticeInput" type="text" placeholder="বিজ্ঞপ্তির লেখা"><label><input id="noticeScroll" type="checkbox" checked style="width:auto"> Scrolling চালু</label><button id="noticeSave">বিজ্ঞপ্তি সংরক্ষণ</button><button id="applyBtn">নির্বাচিত অংশে প্রয়োগ</button><button id="closeBtn">সাধারণ সাইট</button></div>');
  document.querySelectorAll("header,nav,.hero,.hero h2,.hero p,.btn,.card,.card h3,.card p,footer").forEach((el,i)=>{
   el.dataset.editId="el"+i;
   el.addEventListener("click",function(e){
@@ -66,6 +69,8 @@ function admin(){
    document.getElementById("fontFamily").value=[...document.getElementById("fontFamily").options].some(o=>o.value===cs.fontFamily)?cs.fontFamily:document.getElementById("fontFamily").options[0].value;
   },true);
  });
+ document.getElementById("noticeSave").onclick=function(){const n={text:document.getElementById("noticeInput").value.trim()||"বিজ্ঞপ্তি / আপডেট",scroll:document.getElementById("noticeScroll").checked?"on":"off"};localStorage.setItem(noticeKey,JSON.stringify(n));applyNotice();alert("বিজ্ঞপ্তি সংরক্ষণ হয়েছে")};
+ const ns=JSON.parse(localStorage.getItem(noticeKey)||"{}");document.getElementById("noticeInput").value=ns.text||"বিজ্ঞপ্তি / আপডেট";document.getElementById("noticeScroll").checked=ns.scroll!=="off";
  document.getElementById("applyBtn").onclick=function(){
   if(!selected){alert("আগে একটি অংশ নির্বাচন করুন।");return;}
   const styles={fontSize:document.getElementById("fontSize").value+"px",color:document.getElementById("fontColor").value,fontFamily:document.getElementById("fontFamily").value};
@@ -74,7 +79,7 @@ function admin(){
  document.getElementById("closeBtn").onclick=function(){location.hash="";location.reload()};
 }
 function rgbToHex(rgb){const m=rgb.match(/\d+/g)||[23,32,51];return"#"+m.slice(0,3).map(x=>("0"+parseInt(x).toString(16)).slice(-2)).join("")}
-applySaved(); admin();
+applyNotice(); applySaved(); admin();
 })();
 </script></body>
 </html>
