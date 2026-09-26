@@ -12,16 +12,36 @@ header h1{margin:0;font-size:30px}nav{background:#fff;padding:12px;text-align:ce
 .links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:22px}.link-box{background:#fff;border-radius:14px;padding:22px;text-align:center;box-shadow:0 5px 20px #0001}.link-box .icon{font-size:38px}.link-box h3{margin:10px 0;color:#173b8f}.link-box a{display:inline-block;background:#173b8f;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none}
 footer{text-align:center;background:#172033;color:#fff;padding:25px;margin-top:45px}
 </style>
-</head>
+<style>
+.link-box img{width:72px;height:72px;object-fit:contain;border-radius:12px}.link-box .edit-actions{margin-top:10px}.link-box button{padding:6px 10px;border:0;border-radius:6px;margin:3px;cursor:pointer}.link-admin{display:none;margin:18px 0;padding:18px;background:#fff;border-radius:14px;box-shadow:0 5px 20px #0001}.link-admin input{width:100%;padding:9px;margin:6px 0 10px;border:1px solid #ccc;border-radius:7px}.link-admin button{padding:9px 14px;border:0;border-radius:7px;background:#173b8f;color:#fff;margin-right:6px}.admin-open{display:none}
+</style></head>
 <body>
 <header><h1>শ্রীজা কমিউনিকেশন</h1><p>প্রয়োজনীয় ওয়েবসাইট</p></header>
 <nav><a href="index.html">হোম</a><a href="links.html">প্রয়োজনীয় ওয়েবসাইট</a></nav>
 <main class="wrap">
 <section class="title"><h2>প্রয়োজনীয় ওয়েবসাইট</h2><p>পরবর্তীতে এখানে বিভিন্ন সরকারি ও প্রয়োজনীয় ওয়েবসাইট আলাদা বক্সে যোগ করা যাবে।</p></section>
-<section class="links">
+<section class="links"></section><div class="admin-only" style="display:none"></div>
 <div class="link-box"><div class="icon">🌐</div><h3>ওয়েবসাইট বক্স</h3><p>নতুন লিংক যোগ করার জন্য এই কাঠামো রাখা হয়েছে।</p></div>
 </section>
 </main>
 <footer>© 2026 SRIJA COMMUNICATION</footer>
-</body>
+<script>
+(function(){
+const KEY="srija_links";const section=document.querySelector(".links");
+function get(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
+function save(a){localStorage.setItem(KEY,JSON.stringify(a))}
+function render(){
+ const a=get(); section.innerHTML="";
+ a.forEach((x,i)=>{const d=document.createElement("div");d.className="link-box";d.innerHTML='<img src="'+x.img+'" alt=""><h3>'+x.name+'</h3><a href="'+x.url+'" target="_blank" rel="noopener">ওয়েবসাইট খুলুন</a><div class="edit-actions admin-only"><button data-e="'+i+'">Edit</button><button data-d="'+i+'">Delete</button></div>';section.appendChild(d)});
+ if(location.hash==="#admin")document.querySelectorAll(".admin-only").forEach(e=>e.style.display="block");
+}
+function panel(){
+ if(location.hash!=="#admin")return;
+ const p=document.createElement("div");p.className="link-admin";p.style.display="block";p.innerHTML='<b>ওয়েবসাইট যোগ করুন</b><input id="ln" placeholder="ওয়েবসাইটের নাম"><input id="lu" placeholder="https://example.com"><input id="li" placeholder="ছবির URL"><button id="add">+ Link</button><button id="close">সাধারণ পেজ</button>';document.querySelector(".title").after(p);
+ document.getElementById("add").onclick=()=>{const n=document.getElementById("ln").value.trim(),u=document.getElementById("lu").value.trim(),im=document.getElementById("li").value.trim();if(!n||!u){alert("নাম ও লিংক দিন");return}const a=get();a.push({name:n,url:u,img:im||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Crect width='72' height='72' rx='12' fill='%23e8eefc'/%3E%3Ctext x='36' y='47' text-anchor='middle' font-size='32'%3E🌐%3C/text%3E%3C/svg%3E"});save(a);render();alert("লিংক যোগ হয়েছে");};
+ document.getElementById("close").onclick=()=>location.hash="";
+}
+render();panel();
+})();
+</script></body>
 </html>
