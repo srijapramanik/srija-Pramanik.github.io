@@ -643,7 +643,8 @@ function initElementSelection(){
    const page=t.closest("#dashboard-page,#links-page,#website-page,#contact-page");if(!page)return;
    if(t.closest("input,textarea,select"))return;
    /* Click any truly blank page area to clear the current selection. */
-   const clickedBox=t.closest(".drag-box");
+   const clickedTickerPart=t.closest("#notice-label,#marquee-text");
+   const clickedBox=clickedTickerPart?null:t.closest(".drag-box");
    const clickedInteractive=t.closest('button,a,input,textarea,select,label,[role="button"]');
    if(!clickedBox && !clickedInteractive){
       document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
@@ -654,8 +655,8 @@ function initElementSelection(){
    if(t.closest("#links-page .site-card")){ev.preventDefault();ev.stopPropagation();document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));t.closest(".site-card").classList.add("admin-element-selected");return;} if(t.closest("a[href],#links-page .link-page-head .cancel,.admin-only button"))return;
    ev.preventDefault();ev.stopPropagation();
    document.querySelectorAll(".admin-element-selected").forEach(x=>x.classList.remove("admin-element-selected"));
-   let target=t;
-   if(t.matches("i,svg,path,img")&&t.parentElement)target=t.parentElement;
+   let target=clickedTickerPart||t;
+   if(!clickedTickerPart&&t.matches("i,svg,path,img")&&t.parentElement)target=t.parentElement;
    if(t.closest(".top-brand")&&t.id!=="site-title"&&t.id!=="site-subtitle"&&t.id!=="site-logo")target=t.closest(".top-brand");
    target.classList.add("admin-element-selected");
  },true);
