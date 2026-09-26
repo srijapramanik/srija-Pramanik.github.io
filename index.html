@@ -40,7 +40,7 @@ footer{text-align:center;background:#172033;color:white;padding:25px;line-height
 
 <script>
 (function(){
-const key="srija_first_page_styles"; const noticeKey="srija_notice_settings";
+const key="srija_first_page_styles"; const noticeKey="srija_notice_settings"; const copyKey="srija_copied_element";
 let selected=null;
 function applyNotice(){try{const n=JSON.parse(localStorage.getItem(noticeKey)||"{}");if(n.text)document.getElementById("noticeText").textContent=n.text;if(n.scroll==="off")document.getElementById("noticeText").style.animation="none"}catch(e){}}
 function applySaved(){
@@ -54,7 +54,7 @@ function saveStyle(id,styles){
 }
 function admin(){
  if(location.hash!=="#admin")return;
- document.body.insertAdjacentHTML("beforeend",'<div class="admin-panel" id="adminPanel"><h3>সবকিছু পরিচালনা</h3><div class="admin-help">প্রথমে পেজের যে লেখা/বক্সটি পরিবর্তন করবেন সেটিতে ক্লিক করুন।</div><div id="selectedName">কিছু নির্বাচন করা হয়নি</div><label>Font Size</label><input id="fontSize" type="number" min="8" max="100" value="16"><label>Font Color</label><input id="fontColor" type="color" value="#172033"><label>Font Style</label><select id="fontFamily"><option value="Arial, Noto Sans Bengali, sans-serif">Arial / Bengali</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option></select><br><label>বিজ্ঞপ্তি / আপডেট</label><input id="noticeInput" type="text" placeholder="বিজ্ঞপ্তির লেখা"><label><input id="noticeScroll" type="checkbox" checked style="width:auto"> Scrolling চালু</label><button id="noticeSave">বিজ্ঞপ্তি সংরক্ষণ</button><button id="applyBtn">নির্বাচিত অংশে প্রয়োগ</button><button id="closeBtn">সাধারণ সাইট</button></div>');
+ document.body.insertAdjacentHTML("beforeend",'<div class="admin-panel" id="adminPanel"><h3>সবকিছু পরিচালনা</h3><div class="admin-help">প্রথমে পেজের যে লেখা/বক্সটি পরিবর্তন করবেন সেটিতে ক্লিক করুন।</div><div id="selectedName">কিছু নির্বাচন করা হয়নি</div><label>Font Size</label><input id="fontSize" type="number" min="8" max="100" value="16"><label>Font Color</label><input id="fontColor" type="color" value="#172033"><label>Font Style</label><select id="fontFamily"><option value="Arial, Noto Sans Bengali, sans-serif">Arial / Bengali</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option></select><br><label>বিজ্ঞপ্তি / আপডেট</label><input id="noticeInput" type="text" placeholder="বিজ্ঞপ্তির লেখা"><label><input id="noticeScroll" type="checkbox" checked style="width:auto"> Scrolling চালু</label><button id="noticeSave">বিজ্ঞপ্তি সংরক্ষণ</button><button id="copyBtn">Copy</button><button id="pasteBtn">Paste</button><button id="applyBtn">নির্বাচিত অংশে প্রয়োগ</button><button id="closeBtn">সাধারণ সাইট</button></div>');
  document.querySelectorAll("header,nav,.hero,.hero h2,.hero p,.btn,.card,.card h3,.card p,footer").forEach((el,i)=>{
   el.dataset.editId="el"+i;
   el.addEventListener("click",function(e){
@@ -69,6 +69,8 @@ function admin(){
    document.getElementById("fontFamily").value=[...document.getElementById("fontFamily").options].some(o=>o.value===cs.fontFamily)?cs.fontFamily:document.getElementById("fontFamily").options[0].value;
   },true);
  });
+ document.getElementById("copyBtn").onclick=function(){if(!selected){alert("আগে একটি অংশ নির্বাচন করুন।");return}localStorage.setItem(copyKey,selected.outerHTML);alert("নির্বাচিত অংশ Copy হয়েছে")};
+ document.getElementById("pasteBtn").onclick=function(){if(!selected){alert("আগে যেখানে বসাবেন সেটি নির্বাচন করুন।");return}const html=localStorage.getItem(copyKey);if(!html){alert("আগে Copy করুন।");return}const box=document.createElement("div");box.innerHTML=html;const clone=box.firstElementChild;if(!clone){return}clone.dataset.editId="copy"+Date.now();clone.classList.remove("selected-edit");selected.parentNode.insertBefore(clone,selected.nextSibling);alert("Copy করা অংশ Paste হয়েছে")};
  document.getElementById("noticeSave").onclick=function(){const n={text:document.getElementById("noticeInput").value.trim()||"বিজ্ঞপ্তি / আপডেট",scroll:document.getElementById("noticeScroll").checked?"on":"off"};localStorage.setItem(noticeKey,JSON.stringify(n));applyNotice();alert("বিজ্ঞপ্তি সংরক্ষণ হয়েছে")};
  const ns=JSON.parse(localStorage.getItem(noticeKey)||"{}");document.getElementById("noticeInput").value=ns.text||"বিজ্ঞপ্তি / আপডেট";document.getElementById("noticeScroll").checked=ns.scroll!=="off";
  document.getElementById("applyBtn").onclick=function(){
