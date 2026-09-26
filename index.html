@@ -17,7 +17,10 @@ nav a{color:#173b8f;text-decoration:none;margin:0 12px;font-weight:bold}
 .card{background:white;padding:25px;border-radius:14px;box-shadow:0 5px 20px #0001;text-align:center}.card h3{color:#173b8f}
 footer{text-align:center;background:#172033;color:white;padding:25px;line-height:1.7}
 </style>
-</head>
+
+<style id="admin-style">
+.admin-only{display:none}.admin-panel{position:fixed;top:12px;right:12px;width:320px;max-width:calc(100vw - 24px);background:#fff;border-radius:14px;box-shadow:0 10px 35px #0003;padding:18px;z-index:9999;border:1px solid #ddd}.admin-panel h3{margin:0 0 12px;color:#173b8f}.admin-panel label{display:block;margin:9px 0 4px;font-weight:bold;font-size:13px}.admin-panel input,.admin-panel select{width:100%;padding:8px;border:1px solid #ccc;border-radius:7px}.admin-panel button{margin-top:10px;padding:9px 12px;border:0;border-radius:7px;background:#173b8f;color:#fff;cursor:pointer}.admin-help{font-size:12px;color:#555;margin:8px 0}.selected-edit{outline:3px dashed #f59e0b!important;outline-offset:3px}
+</style></head>
 <body>
 <header><h1>SRIJA COMMUNICATION</h1><p>আপনার ডিজিটাল পরিষেবার সহজ ঠিকানা</p></header>
 <nav><a href="#home">হোম</a><a href="#services">পরিষেবা</a><a href="#contact">যোগাযোগ</a></nav>
@@ -32,5 +35,46 @@ footer{text-align:center;background:#172033;color:white;padding:25px;line-height
 <div class="card"><h3>📱 অনলাইন সহায়তা</h3><p>দৈনন্দিন অনলাইন পরিষেবা ব্যবহারে সহায়তা।</p></div>
 </section>
 <footer id="contact"><strong>যোগাযোগ</strong><br>সন্তু প্রামানিক<br>ফোন: 7003979575<br>দক্ষিণ জালখুড়া, বড়ুয়া পাড়া, মহেশতলা, কলকাতা - 700141<br><br>© 2026 SRIJA COMMUNICATION</footer>
-</body>
+
+<script>
+(function(){
+const key="srija_first_page_styles";
+let selected=null;
+function applySaved(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(key)||"{}");
+  Object.keys(saved).forEach((id)=>{const el=document.querySelector('[data-edit-id="'+id+'"]');if(el)Object.assign(el.style,saved[id]);});
+ }catch(e){}
+}
+function saveStyle(id,styles){
+ const saved=JSON.parse(localStorage.getItem(key)||"{}"); saved[id]=styles; localStorage.setItem(key,JSON.stringify(saved));
+}
+function admin(){
+ if(location.hash!=="#admin")return;
+ document.body.insertAdjacentHTML("beforeend",'<div class="admin-panel" id="adminPanel"><h3>সবকিছু পরিচালনা</h3><div class="admin-help">প্রথমে পেজের যে লেখা/বক্সটি পরিবর্তন করবেন সেটিতে ক্লিক করুন।</div><div id="selectedName">কিছু নির্বাচন করা হয়নি</div><label>Font Size</label><input id="fontSize" type="number" min="8" max="100" value="16"><label>Font Color</label><input id="fontColor" type="color" value="#172033"><label>Font Style</label><select id="fontFamily"><option value="Arial, Noto Sans Bengali, sans-serif">Arial / Bengali</option><option value="Georgia, serif">Georgia</option><option value="Verdana, sans-serif">Verdana</option><option value="Tahoma, sans-serif">Tahoma</option></select><br><button id="applyBtn">নির্বাচিত অংশে প্রয়োগ</button><button id="closeBtn">সাধারণ সাইট</button></div>');
+ document.querySelectorAll("header,nav,.hero,.hero h2,.hero p,.btn,.card,.card h3,.card p,footer").forEach((el,i)=>{
+  el.dataset.editId="el"+i;
+  el.addEventListener("click",function(e){
+   if(e.target.closest("#adminPanel"))return;
+   e.preventDefault();e.stopPropagation();
+   if(selected)selected.classList.remove("selected-edit");
+   selected=this;this.classList.add("selected-edit");
+   document.getElementById("selectedName").textContent="নির্বাচিত: "+(this.tagName==="DIV"?"বক্স":this.innerText.trim().slice(0,30));
+   const cs=getComputedStyle(this);
+   document.getElementById("fontSize").value=parseInt(cs.fontSize)||16;
+   document.getElementById("fontColor").value=rgbToHex(cs.color);
+   document.getElementById("fontFamily").value=[...document.getElementById("fontFamily").options].some(o=>o.value===cs.fontFamily)?cs.fontFamily:document.getElementById("fontFamily").options[0].value;
+  },true);
+ });
+ document.getElementById("applyBtn").onclick=function(){
+  if(!selected){alert("আগে একটি অংশ নির্বাচন করুন।");return;}
+  const styles={fontSize:document.getElementById("fontSize").value+"px",color:document.getElementById("fontColor").value,fontFamily:document.getElementById("fontFamily").value};
+  Object.assign(selected.style,styles);saveStyle(selected.dataset.editId,styles);
+ };
+ document.getElementById("closeBtn").onclick=function(){location.hash="";location.reload()};
+}
+function rgbToHex(rgb){const m=rgb.match(/\d+/g)||[23,32,51];return"#"+m.slice(0,3).map(x=>("0"+parseInt(x).toString(16)).slice(-2)).join("")}
+applySaved(); admin();
+})();
+</script></body>
 </html>
