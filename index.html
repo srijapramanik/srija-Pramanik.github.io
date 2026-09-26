@@ -538,6 +538,10 @@ function openQuickEditor(){
   const toHex=v=>{const m=(v||"").match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/i);return m?"#"+[m[1],m[2],m[3]].map(n=>Number(n).toString(16).padStart(2,"0")).join(""):(/^#[0-9a-f]{6}$/i.test(v||"")?v:"");};
   if(colorSel){const hex=toHex(cs.color);colorSel.value=hex||"#000000";}
   if(highlightSel){const hex=toHex(cs.backgroundColor);highlightSel.value=hex||"#ffff00";}
+  const boldBtn=document.querySelector('#quick-word-toolbar [data-cmd="bold"]'),italicBtn=document.querySelector('#quick-word-toolbar [data-cmd="italic"]'),underlineBtn=document.querySelector('#quick-word-toolbar [data-cmd="underline"]');
+  if(boldBtn)boldBtn.classList.toggle("active",/^(bold|600|700|800|900)$/.test(cs.fontWeight));
+  if(italicBtn)italicBtn.classList.toggle("active",cs.fontStyle==="italic");
+  if(underlineBtn)underlineBtn.classList.toggle("active",cs.textDecorationLine.includes("underline"));
  }
  if(boxControls)boxControls.style.display="grid";
  const w=document.getElementById("qe-width"), h=document.getElementById("qe-height"), bg=document.getElementById("qe-bg");
