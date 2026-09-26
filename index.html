@@ -749,7 +749,7 @@ function editBoxTitle(box){openSettings()}async function resetAll(){closeSetting
 <script id="remove-legacy-manik">
 (function(){
   /* Permanent safeguard: old saved data must never re-introduce the unrelated name "Manik". */
-  const BAD=/\\bmanik\\b/gi;
+  const BAD=/\bmanik\b/gi;
   const GOOD="SRIJA COMMUNICATION";
   function cleanValue(v){
     if(typeof v==='string') return v.replace(BAD,GOOD);
