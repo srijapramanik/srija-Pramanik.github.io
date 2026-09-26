@@ -551,7 +551,8 @@ function openQuickEditor(){
  if(w)w.value=s.width||el.style.width||"";
  if(h)h.value=s.height||el.style.height||"";
  if(bg){
-   const cv=s.backgroundColor||"";
+   let cv=s.backgroundColor||"";
+   if(!cv&&textMode){const bcs=getComputedStyle(el).backgroundColor;const m=bcs.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*[\\d.]+)?\\)/);if(m)cv="#"+[m[1],m[2],m[3]].map(v=>Number(v).toString(16).padStart(2,"0")).join("")}
    bg.value=/^#[0-9a-f]{6}$/i.test(cv)?cv:"#ffffff";
    bg.oninput=()=>{const target=document.querySelector(".admin-element-selected");if(!target)return;if(!target.id)target.id="quick-"+Math.random().toString(36).slice(2,10);const all=getQuickStyles(),ss=all[target.id]||{};ss.backgroundColor=bg.value;all[target.id]=ss;localStorage.setItem("quick_element_styles",JSON.stringify(all));target.style.backgroundColor=bg.value};
  }
